@@ -1,5 +1,5 @@
-cifti - MATLAB code for reading and writing CIFTI connectivity files
-====================================================================
+MATLAB code for reading and writing CIFTI connectivity files
+============================================================
 
 This repository contains a subset of the MATLAB code from the
 FieldTrip and the SPM toolboxes. It should allow MATLAB users and
