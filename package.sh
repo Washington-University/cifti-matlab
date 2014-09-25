@@ -23,6 +23,10 @@ svn info ${SOURCE} | grep ^Last > ${DESTINATION}/VERSION
 cp ${SOURCE}/fileio/ft_read_cifti.m                      ${DESTINATION} 
 cp ${SOURCE}/fileio/ft_write_cifti.m                     ${DESTINATION} 
 
+# external dependency
+cp -r ${SOURCE}/external/gifti/@gifti                    ${DESTINATION} 
+cp -r ${SOURCE}/external/gifti/@xmltree                  ${DESTINATION} 
+
 # first order dependencies, i.e. called by main functions
 cp ${SOURCE}/fileio/ft_read_headshape.m                  ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/fixname.m                    ${DESTINATION}/private
@@ -99,3 +103,8 @@ cp ${SOURCE}/fileio/private/write_ply.m                  ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/write_stl.m                  ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/write_vtk.m                  ${DESTINATION}/private
 
+# some other files that I noticed to be missing
+cp ${SOURCE}/fileio/private/filetype_check_extension.m  ${DESTINATION}/private
+cp ${SOURCE}/fileio/private/filetype_check_header.m     ${DESTINATION}/private
+cp ${SOURCE}/fileio/private/filetype_check_uri.m        ${DESTINATION}/private
+cp ${SOURCE}/fileio/private/ft_estimate_units.m         ${DESTINATION}/private
