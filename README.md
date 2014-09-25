@@ -7,6 +7,7 @@ FieldTrip repository, and should allow MATLAB users and developers
 to integrate the CIFTI file format in their analysis pipelines.
 
 See http://www.nitrc.org/forum/forum.php?forum_id=1955 for details on CIFTI.
+
 See http://fieldtriptoolbox.org for details on FieldTrip.
 
 The FieldTrip software is free but copyrighted software, distributed
