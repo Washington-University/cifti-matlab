@@ -108,3 +108,5 @@ cp ${SOURCE}/fileio/private/filetype_check_extension.m  ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/filetype_check_header.m     ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/filetype_check_uri.m        ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_estimate_units.m         ${DESTINATION}/private
+cp ${SOURCE}/fileio/private/getdimord.m                 ${DESTINATION}/private
+cp ${SOURCE}/fileio/private/getdimsiz.m                 ${DESTINATION}/private
