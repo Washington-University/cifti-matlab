@@ -60,7 +60,7 @@ function [sens] = ft_read_sens(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_sens.m 9846 2014-09-27 09:20:26Z roboos $
+% $Id: ft_read_sens.m 9859 2014-09-27 11:19:58Z roboos $
 
 % optionally get the data from the URL and make a temporary local copy
 filename = fetch_url(filename);
@@ -165,7 +165,7 @@ switch fileformat
     % sometimes there can also be electrode position information in the header
     hdr = ft_read_header(filename, 'headerformat', fileformat);
     if isfield(hdr, 'elec') && isfield(hdr, 'grad')
-      switch lower(cfg.senstype)
+      switch lower(senstype)
         case 'eeg'
           warning('both electrode and gradiometer information is present, returning the electrode information');
           sens = hdr.elec;
