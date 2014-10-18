@@ -51,7 +51,7 @@ function source = ft_read_cifti(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_cifti.m 9902 2014-10-15 13:01:38Z roboos $
+% $Id: ft_read_cifti.m 9915 2014-10-18 16:03:22Z roboos $
 
 readdata         = ft_getopt(varargin, 'readdata', []);   % the default depends on file size, see below
 cortexleft       = ft_getopt(varargin, 'cortexleft', {});
@@ -329,7 +329,7 @@ for i=1:length(uid_MatrixIndicesMap)
             Surface(end  ).SurfaceNumberOfVertices = MatrixIndicesMap(i).BrainModel(j).SurfaceNumberOfVertices;
             
           otherwise
-            error('unsupported version');
+            error('unsupported cifti version');
         end % switch version
         
         
@@ -481,9 +481,10 @@ source.dimord(end) = [];
 if ~isempty(BrainModel)
   % the BrainModel is constructed both for dense and parcellated data
   
-  dataIndex     = cell(size(BrainModel));
-  greynodeIndex = cell(size(BrainModel));
-  surfaceIndex  = nan(size(BrainModel)); % remains nan if it maps into the volume
+  dataIndex           = cell(size(BrainModel));
+  greynodeIndex       = cell(size(BrainModel));
+  brainstructureIndex = cell(size(BrainModel));
+  surfaceIndex        = nan(size(BrainModel)); % remains nan if it maps into the volume
   
   geombeg = [BrainModel.IndexOffset]+1;
   geomend = geombeg + [BrainModel.IndexCount] - 1;
@@ -492,18 +493,29 @@ if ~isempty(BrainModel)
     dataIndex{i} = geombeg(i):geomend(i);
     switch BrainModel(i).ModelType
       case 'CIFTI_MODEL_TYPE_SURFACE'
-        try
-          greynodeIndex{i} = BrainModel(i).VertexIndices;
-        catch
-          greynodeIndex{i} = 1:BrainModel(i).SurfaceNumberOfNodes;
-        end
+
+        switch Cifti.Version
+          case {'1' '1.0'}
+            try
+              greynodeIndex{i}     = BrainModel(i).VertexIndices;
+            catch
+              greynodeIndex{i}     = 1:BrainModel(i).SurfaceNumberOfNodes;
+            end
+            brainstructureIndex{i} = 1:BrainModel(i).SurfaceNumberOfNodes;
+          case {'2', '2.0'}
+            greynodeIndex{i}       = BrainModel(i).VertexIndices;
+            brainstructureIndex{i} = 1:BrainModel(i).SurfaceNumberOfVertices;
+          otherwise
+            error('unsupported cifti version');
+        end % switch
         
         sel = find(strcmp({Surface(:).BrainStructure}, BrainModel(i).BrainStructure));
         assert(numel(sel)==1);
         surfaceIndex(i) = sel;
         
       case 'CIFTI_MODEL_TYPE_VOXELS'
-        greynodeIndex{i} = 1:BrainModel(i).IndexCount;
+        greynodeIndex{i}       = 1:BrainModel(i).IndexCount;
+        brainstructureIndex{i} = 1:BrainModel(i).IndexCount;
         surfaceIndex(i) = nan; % does not map onto surface
         
       otherwise
@@ -534,6 +546,8 @@ if ~isempty(BrainModel)
     voxeloffset  = 0;
   end
   
+  greynodeOffset = nan(size(BrainModel));
+  brainstructureOffset = nan(size(BrainModel));
   for i=1:numel(BrainModel)
     if strcmp(BrainModel(i).ModelType, 'CIFTI_MODEL_TYPE_SURFACE')
       sel = find(strcmp({Surface(:).BrainStructure}, BrainModel(i).BrainStructure));
@@ -542,7 +556,11 @@ if ~isempty(BrainModel)
       sel = strcmp({BrainModel(1:i-1).ModelType}, 'CIFTI_MODEL_TYPE_VOXELS');
       greynodeOffset(i) = voxeloffset + sum([BrainModel(sel).IndexCount]);
     end
+    % shift the greynodes to become consistent with the voxel data
     greynodeIndex{i} = greynodeIndex{i} + greynodeOffset(i);
+    % shift the brainstructures to become consistent with the brainordinate positions
+    brainstructureOffset(i) = numel([brainstructureIndex{1:i-1}]);
+    brainstructureIndex{i} = brainstructureIndex{i} + brainstructureOffset(i);
   end
   
 end % if BrainModel
@@ -555,8 +573,8 @@ for i=1:numel(BrainModel)
   if isempty(indx)
     indx = length(brainordinate.brainstructurelabel)+1;
   end
-  brainordinate.brainstructure(greynodeIndex{i}) = indx;
-  brainordinate.brainstructurelabel{indx}        = BrainModel(i).BrainStructure;
+  brainordinate.brainstructure(brainstructureIndex{i}) = indx;
+  brainordinate.brainstructurelabel{indx} = BrainModel(i).BrainStructure;
 end
 
 list1 = {
@@ -642,7 +660,7 @@ if ~isempty(Parcel)
     brainordinate.parcellationlabel{i} = Parcel(i).Name;
     sel = find(strcmp(BrainModelParcelName, Parcel(i).Name));
     for j=1:numel(sel)
-      brainordinate.parcellation(greynodeIndex{sel(j)}) = i;
+      brainordinate.parcellation(greynodeIndex{sel(j)}) = i; % FIXME should this be greynodeIndex or brainstructureIndex?
     end
   end
 end
@@ -708,6 +726,7 @@ end % if data
 
 source = copyfields(Cifti, source, {'time', 'freq'});
 source.hdr = hdr;
+source.unit = 'mm'; % per definition
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % try to get the geometrical information from the corresponding gifti files
@@ -796,6 +815,17 @@ Bfilelist = {
   [subject                               '.surf.gii']
   [subject '.CORTEX'                     '.surf.gii']
   };
+
+% assume that the surface files are in the same directory as the cifti file
+for i=1:numel(Lfilelist)
+  Lfilelist{i} = fullfile(p, Lfilelist{i});
+end
+for i=1:numel(Rfilelist)
+  Rfilelist{i} = fullfile(p, Rfilelist{i});
+end
+for i=1:numel(Bfilelist)
+  Bfilelist{i} = fullfile(p, Bfilelist{i});
+end
 
 Lfilelist = cat(1, cortexleft, Lfilelist);
 Rfilelist = cat(1, cortexright, Rfilelist);
