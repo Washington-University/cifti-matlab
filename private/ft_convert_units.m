@@ -39,7 +39,7 @@ function [obj] = ft_convert_units(obj, target, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_convert_units.m 9014 2013-12-11 09:03:02Z eelspa $
+% $Id: ft_convert_units.m 9942 2014-11-08 11:32:47Z roboos $
 
 % This function consists of three parts:
 %   1) determine the input units
@@ -212,7 +212,12 @@ end % if
 if isfield(obj, 'fid') && isfield(obj.fid, 'pnt'), obj.fid.pnt = scale * obj.fid.pnt; end
 
 % dipole grid
-if isfield(obj, 'pos'), obj.pos = scale * obj.pos; end
+if isfield(obj, 'pos'),        obj.pos = scale * obj.pos; end
+if isfield(obj, 'resolution'), obj.resolution = scale * obj.resolution; end
+% x,y,zgrid can also be 'auto'
+if isfield(obj, 'xgrid') && ~ischar(obj.xgrid), obj.xgrid = scale * obj.xgrid; end
+if isfield(obj, 'ygrid') && ~ischar(obj.ygrid), obj.ygrid = scale * obj.ygrid; end
+if isfield(obj, 'zgrid') && ~ischar(obj.zgrid), obj.zgrid = scale * obj.zgrid; end
 
 % anatomical MRI or functional volume
 if isfield(obj, 'transform'),
