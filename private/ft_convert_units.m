@@ -39,7 +39,7 @@ function [obj] = ft_convert_units(obj, target, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_convert_units.m 9942 2014-11-08 11:32:47Z roboos $
+% $Id: ft_convert_units.m 10013 2014-12-03 09:14:21Z roboos $
 
 % This function consists of three parts:
 %   1) determine the input units
@@ -177,17 +177,17 @@ if isfield(obj, 'bnd'),
   end
 end
 
-% gradiometer array
+% old-fashioned gradiometer array
 if isfield(obj, 'pnt1'), obj.pnt1 = scale * obj.pnt1; end
 if isfield(obj, 'pnt2'), obj.pnt2 = scale * obj.pnt2; end
 if isfield(obj, 'prj'),  obj.prj  = scale * obj.prj;  end
 
 % gradiometer array, electrode array, head shape or dipole grid
-if isfield(obj, 'pnt'),        obj.pnt     = scale * obj.pnt; end
-if isfield(obj, 'chanpos'),    obj.chanpos = scale * obj.chanpos; end
+if isfield(obj, 'pnt'),        obj.pnt        = scale * obj.pnt;        end
+if isfield(obj, 'chanpos'),    obj.chanpos    = scale * obj.chanpos;    end
 if isfield(obj, 'chanposorg'), obj.chanposorg = scale * obj.chanposorg; end
-if isfield(obj, 'coilpos'),    obj.coilpos = scale * obj.coilpos; end
-if isfield(obj, 'elecpos'),    obj.elecpos = scale * obj.elecpos; end
+if isfield(obj, 'coilpos'),    obj.coilpos    = scale * obj.coilpos;    end
+if isfield(obj, 'elecpos'),    obj.elecpos    = scale * obj.elecpos;    end
 
 % gradiometer array that combines multiple coils in one channel
 if isfield(obj, 'tra') && isfield(obj, 'chanunit')

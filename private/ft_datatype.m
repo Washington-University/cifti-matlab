@@ -31,7 +31,7 @@ function [type, dimord] = ft_datatype(data, desired)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_datatype.m 9960 2014-11-12 19:14:45Z jansch $
+% $Id: ft_datatype.m 10010 2014-12-02 14:43:47Z roboos $
 
 if nargin<2
   desired = [];
