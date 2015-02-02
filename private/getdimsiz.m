@@ -14,9 +14,9 @@ end
 
 if ~isfield(data, field)
   error('field "%s" not present in data', field);
+else
+  dimsiz = cellmatsize(data.(field));
 end
-
-dimsiz = cellmatsize(data.(field));
 
 end % main function
 
