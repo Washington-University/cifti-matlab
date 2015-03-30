@@ -53,7 +53,7 @@ function source = ft_read_cifti(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_cifti.m 10152 2015-02-02 08:49:04Z roboos $
+% $Id: ft_read_cifti.m 10224 2015-02-12 09:26:06Z jansch $
 
 readdata         = ft_getopt(varargin, 'readdata', []);   % the default depends on file size, see below
 readsurface      = ft_getopt(varargin, 'readsurface', true);
@@ -511,8 +511,7 @@ if ~isempty(BrainModel)
             brainstructureIndex{i} = 1:BrainModel(i).SurfaceNumberOfNodes;
           case {'2', '2.0'}
             greynodeIndex{i}       = BrainModel(i).VertexIndices;
-            %brainstructureIndex{i} = 1:BrainModel(i).SurfaceNumberOfVertices;
-            brainstructureIndex{i} = 1:numel(BrainModel(i).VertexIndices);
+            brainstructureIndex{i} = 1:BrainModel(i).SurfaceNumberOfVertices;
           otherwise
             error('unsupported cifti version');
         end % switch
@@ -927,10 +926,10 @@ if ~isempty(NamedMap)
   % the following assumes a single NamedMap
   if isfield(NamedMap, 'LabelTable')
     % use the key-label combination in the label table
-    haslabeltable = true;
-    key           = NamedMap.LabelTable.Key;
+    haslabeltable    = true;
+    key              = NamedMap.LabelTable.Key;
+    source.datalabel = NamedMap.LabelTable.Label(:);
   end
-  source.datalabel = NamedMap.LabelTable.Label(:);
 end
 
 if readdata
