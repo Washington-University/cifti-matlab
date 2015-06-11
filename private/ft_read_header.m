@@ -12,6 +12,7 @@ function [hdr] = ft_read_header(filename, varargin)
 %   'fallback'       can be empty or 'biosig' (default = [])
 %   'coordsys'       string, 'head' or 'dewar' (default = 'head')
 %   'checkmaxfilter' boolean, whether to check that maxfilter has been correctly applied (default = true)
+%   'chanindx'       list with channel indices in case of different sampling frequencies (only for EDF)
 %
 % This returns a header structure with the following elements
 %   hdr.Fs                  sampling frequency
@@ -90,7 +91,7 @@ function [hdr] = ft_read_header(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_header.m 10361 2015-04-30 17:55:37Z roboos $
+% $Id: ft_read_header.m 10451 2015-06-10 22:00:07Z roboos $
 
 % TODO channel renaming should be made a general option (see bham_bdf)
 
@@ -104,7 +105,7 @@ end
 
 if iscell(filename)
   % use recursion to read events from multiple files
-  warning_once(sprintf('concatenating header from %d files', numel(filename)));
+  ft_warning(sprintf('concatenating header from %d files', numel(filename)));
   hdr = cell(size(filename));
   for i=1:numel(filename)
     hdr{i} = ft_read_header(filename{i}, varargin{:});
@@ -139,6 +140,7 @@ end
 headerformat   = ft_getopt(varargin, 'headerformat');
 retry          = ft_getopt(varargin, 'retry', false);     % the default is not to retry reading the header
 coordsys       = ft_getopt(varargin, 'coordsys', 'head'); % this is used for ctf and neuromag_mne, it can be head or dewar
+chanindx       = ft_getopt(varargin, 'chanindx');         % this is used for EDF with different sampling rates
 
 % optionally get the data from the URL and make a temporary local copy
 filename = fetch_url(filename);
@@ -304,7 +306,7 @@ switch headerformat
       hdr.label       = parameters.ChannelNames.Values;
     else
       % give this warning only once
-      warning_once('creating fake channel names');
+      ft_warning('creating fake channel names');
       for i=1:hdr.nChans
         hdr.label{i} = sprintf('%d', i);
       end
@@ -332,7 +334,7 @@ switch headerformat
       hdr.label = tokenize(orig.label, ' ');
     else
       % give this warning only once
-      warning_once('creating fake channel names');
+      ft_warning('creating fake channel names');
       for i=1:hdr.nChans
         hdr.label{i} = sprintf('%d', i);
       end
@@ -668,8 +670,17 @@ switch headerformat
     
   case 'edf'
     % this reader is largely similar to the bdf reader
-    hdr = read_edf(filename);
-    
+    if isempty(chanindx)
+        hdr = read_edf(filename);
+    else
+        hdr = read_edf(filename,[],1);
+        if chanindx > hdr.orig.NS
+            error('FILEIO:InvalidChanIndx', 'selected channels are not present in the data');
+        else
+            hdr = read_edf(filename,[],chanindx);
+        end;
+    end;
+ 
   case 'eep_avr'
     % check that the required low-level toolbox is available
     ft_hastoolbox('eeprobe', 1);
@@ -727,7 +738,7 @@ switch headerformat
     hdr.TimeStampPerSample  = mean(diff(asc.dat(1,:)));
     hdr.Fs                  = 1000/hdr.TimeStampPerSample;  % these timestamps are in miliseconds
     % give this warning only once
-    warning_once('creating fake channel names');
+    ft_warning('creating fake channel names');
     for i=1:hdr.nChans
       hdr.label{i} = sprintf('%d', i);
     end
@@ -1196,12 +1207,12 @@ switch headerformat
       else
         hdr.label = cell(hdr.nChans,1);
         if hdr.nChans < 2000 % don't do this for fMRI etc.
-          warning_once('creating fake channel names');        % give this warning only once
+          ft_warning('creating fake channel names');        % give this warning only once
           for i=1:hdr.nChans
             hdr.label{i} = sprintf('%d', i);
           end
         else
-          warning_once('skipping fake channel names');        % give this warning only once
+          ft_warning('skipping fake channel names');        % give this warning only once
           checkUniqueLabels = false;
         end
       end
@@ -1219,7 +1230,7 @@ switch headerformat
       case 1
         % has generated fake channels
         % give this warning only once
-        warning_once('creating fake channel names');
+        ft_warning('creating fake channel names');
         checkUniqueLabels = false; % no need to check these
       case 2
         % got labels from chunk, check those
@@ -1398,7 +1409,7 @@ switch headerformat
     hdr.chanunit    = cellstr(reshape(Var.channelunits, hdr.nChans, 2));
     hdr.chantype    = cellstr(reshape(lower(Var.channeltypes), hdr.nChans, 3));
     
-    warning_once('creating fake channel names');
+    ft_warning('creating fake channel names');
     hdr.label = cell(hdr.nChans, 1);
     for i=1:hdr.nChans
       hdr.label{i} = sprintf('%d', i);
@@ -1538,7 +1549,7 @@ switch headerformat
         if istrue(checkmaxfilter)
           error('Maxshield data should be corrected using Maxfilter prior to importing in FieldTrip.');
         else
-          warning_once('Maxshield data should be corrected using Maxfilter prior to importing in FieldTrip.');
+          ft_warning('Maxshield data should be corrected using Maxfilter prior to importing in FieldTrip.');
         end
       end
       hdr.nSamples    = raw.last_samp - raw.first_samp + 1; % number of samples per trial
