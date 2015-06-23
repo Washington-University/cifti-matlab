@@ -54,7 +54,7 @@ function source = ft_read_cifti(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_cifti.m 10470 2015-06-23 06:38:08Z roboos $
+% $Id: ft_read_cifti.m 10471 2015-06-23 08:24:18Z roboos $
 
 readdata         = ft_getopt(varargin, 'readdata', []);   % the default depends on file size, see below
 readsurface      = ft_getopt(varargin, 'readsurface', true);
@@ -66,6 +66,21 @@ mapname          = ft_getopt(varargin, 'mapname', 'field');
 
 % convert 'yes'/'no' into boolean
 readdata = istrue(readdata);
+
+if ~isempty(regexp(filename, 'nii.gz$', 'once'))
+  % the file is compressed, unzip on the fly
+  if ispc
+    error('cannot decompress gzipped files on a PC');
+  else
+    tempfile = [tempname '.nii.gz'];
+    [a, b] = system(sprintf('cp %s %s', filename, tempfile));
+    [a, b] = system(sprintf('gunzip %s', tempfile));
+  end
+  origfile = filename;
+  filename = tempfile(1:end-3); % strip the .gz
+else
+  origfile = filename;
+end
 
 % read the header section
 hdr = read_nifti2_hdr(filename);
@@ -795,6 +810,9 @@ source.unit = 'mm'; % per definition
 % try to get the geometrical information from the corresponding gifti files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if readsurface
+  
+  % use the filename prior to decompression
+  filename = origfile;
   
   [p, f, x] = fileparts(filename);
   t = tokenize(f, '.');
