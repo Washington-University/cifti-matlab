@@ -54,7 +54,7 @@ function source = ft_read_cifti(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_cifti.m 10469 2015-06-23 06:27:00Z roboos $
+% $Id: ft_read_cifti.m 10470 2015-06-23 06:38:08Z roboos $
 
 readdata         = ft_getopt(varargin, 'readdata', []);   % the default depends on file size, see below
 readsurface      = ft_getopt(varargin, 'readsurface', true);
@@ -178,13 +178,17 @@ for i=1:length(uid_MatrixIndicesMap)
   switch Cifti.Version
     case {'1' '1.0'}
       uid_Volume = find(tree,'/CIFTI/Matrix/Volume');
-      volume = branch(tree, uid_Volume);
     case {'2' '2.0'}
       uid_Volume = find(map,'/MatrixIndicesMap/Volume');
-      volume = branch(map, uid_Volume);
   end
   % the following will fail if there are multiple volumes
   if ~isempty(uid_Volume)
+    switch Cifti.Version
+      case {'1' '1.0'}
+        volume = branch(tree, uid_Volume);
+      case {'2' '2.0'}
+        volume = branch(map, uid_Volume);
+    end
     attr = attributes(volume, 'get', 1); % there should only be one attribute here
     if ~iscell(attr), attr = {attr}; end % treat one attribute just like multiple attributes
     for j=1:numel(attr)
