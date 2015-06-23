@@ -54,7 +54,7 @@ function source = ft_read_cifti(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_cifti.m 10454 2015-06-11 21:30:24Z roboos $
+% $Id: ft_read_cifti.m 10469 2015-06-23 06:27:00Z roboos $
 
 readdata         = ft_getopt(varargin, 'readdata', []);   % the default depends on file size, see below
 readsurface      = ft_getopt(varargin, 'readsurface', true);
@@ -175,10 +175,16 @@ for i=1:length(uid_MatrixIndicesMap)
     end
   end
   
-  uid_Volume = find(map,'/MatrixIndicesMap/Volume');
+  switch Cifti.Version
+    case {'1' '1.0'}
+      uid_Volume = find(tree,'/CIFTI/Matrix/Volume');
+      volume = branch(tree, uid_Volume);
+    case {'2' '2.0'}
+      uid_Volume = find(map,'/MatrixIndicesMap/Volume');
+      volume = branch(map, uid_Volume);
+  end
   % the following will fail if there are multiple volumes
   if ~isempty(uid_Volume)
-    volume = branch(map, uid_Volume);
     attr = attributes(volume, 'get', 1); % there should only be one attribute here
     if ~iscell(attr), attr = {attr}; end % treat one attribute just like multiple attributes
     for j=1:numel(attr)
@@ -552,7 +558,7 @@ if ~isempty(BrainModel)
   if ~isempty(Surface)
     voxeloffset = sum([Surface.SurfaceNumberOfVertices]);
   else
-    voxeloffset  = 0;
+    voxeloffset = 0;
   end
   
   greynodeOffset = nan(size(BrainModel));
@@ -735,10 +741,17 @@ if readdata
   end % switch
   
   if isfield(Cifti, 'mapname') && isfield(Cifti, 'labeltable') && strcmp(mapname, 'array')
-    error('multiple maps cannot be represented as array in the presence of a labeltable');
-    % Each map can have a different labeltable. In principle this could be solved by
-    % concatenating all labeltables and remapping all elements to this list of
-    % labels.
+    allthesame = true;
+    for i=2:length(Cifti.labeltable)
+      allthesame = allthesame && isequal(Cifti.labeltable{1}, Cifti.labeltable{i});
+    end
+    if allthesame
+      warning('using the same labels for all maps in the array');
+      source.datalabel = Cifti.labeltable{1};
+      Cifti = rmfield(Cifti, 'labeltable');
+    else
+      error('multiple maps cannot be represented as array in the presence of different labeltables');
+    end
   end
   
   if isfield(Cifti, 'mapname') && (length(Cifti.mapname)>1 || isfield(Cifti, 'labeltable'))
@@ -747,15 +760,15 @@ if readdata
         % use distict names if there are multiple scalars or labels
         for i=1:length(Cifti.mapname)
           fieldname = Cifti.mapname{i};
-          if isfield(Cifti, 'labeltable') && length(fieldname)>58
-            % this is needed to be able to append 'label' to the end
-            fieldname = fieldname(1:58);
+          if isfield(Cifti, 'labeltable')
+            if length(fieldname)>58
+              % truncate it, needed to be able to append 'label' to the end
+              fieldname = fieldname(1:58);
+              % append 'label' to the end
+              source.([fieldname 'label']) = Cifti.labeltable{i};
+            end
           end
           source.(fieldname) = dat(:,i);
-          if isfield(Cifti, 'labeltable')
-            % append 'label' to the end
-            source.([fieldname 'label']) = Cifti.labeltable{i};
-          end
         end
       case 'array'
         source.mapname = {NamedMap.MapName}; % keep the original names, not the field names
