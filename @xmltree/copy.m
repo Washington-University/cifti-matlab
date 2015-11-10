@@ -7,13 +7,13 @@ function tree = copy(tree,subuid,uid)
 % uid       - UID of the element where the subtree must be duplicated
 %__________________________________________________________________________
 %
-% Copy a subtree to another branch
-% The tree parameter must be in input AND in output
+% Copy a subtree to another branch.
+% The tree parameter must be in input AND in output.
 %__________________________________________________________________________
-% Copyright (C) 2002-2011  http://www.artefact.tk/
+% Copyright (C) 2002-2015  http://www.artefact.tk/
 
 % Guillaume Flandin
-% $Id: copy.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id: copy.m 10858 2015-11-10 12:40:42Z roboos $
 
 
 %error(nargchk(2,3,nargin));

@@ -76,7 +76,7 @@ function [type] = ft_filetype(filename, desired, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_filetype.m 10380 2015-05-06 20:10:14Z roboos $
+% $Id: ft_filetype.m 10843 2015-11-05 21:39:54Z roboos $
 
 % these are for remembering the type on subsequent calls with the same input arguments
 persistent previous_argin previous_argout previous_pwd
@@ -225,7 +225,7 @@ elseif filetype_check_uri(filename, 'empty')
   content      = '/dev/null';
   
   % known CTF file types
-elseif isdir(filename) && filetype_check_extension(filename, '.ds') && exist(fullfile(filename, [f '.res4']))
+elseif isdir(filename) && filetype_check_extension(filename, '.ds') && exist(fullfile(filename, [f '.res4']), 'file')
   type = 'ctf_ds';
   manufacturer = 'CTF';
   content = 'MEG dataset';
@@ -562,6 +562,16 @@ elseif filetype_check_extension(filename, '.pos')
   type = 'polhemus_pos';
   manufacturer = 'BrainProducts/CTF/Polhemus?'; % actually I don't know whose software it is
   content = 'electrode positions';
+  
+  % known Blackrock Microsystems file types
+elseif strncmp(x,'.ns',3) && (filetype_check_header(filename, 'NEURALCD') || filetype_check_header(filename, 'NEURALSG'))
+  type = 'blackrock_nsx';
+  manufacturer = 'Blackrock Microsystems';
+  content = 'conintuously sampled data';
+elseif filetype_check_extension(filename, '.nev') && filetype_check_header(filename, 'NEURALEV')
+  type = 'blackrock_nev';
+  manufacturer = 'Blackrock Microsystems';
+  contenct = 'extracellular electrode spike information';
   
   % known Neuralynx file types
 elseif filetype_check_extension(filename, '.nev') || filetype_check_extension(filename, '.Nev')
@@ -1054,6 +1064,16 @@ elseif filetype_check_extension(filename, '.minf') && filetype_check_ascii(filen
   manufacturer = 'BrainVISA';
   content = 'annotation/metadata';
 
+  % raw audio and video data from https://github.com/andreyzhd/VideoMEG
+elseif filetype_check_extension(filename, '.aud') && filetype_check_header(filename, 'ELEKTA_AUDIO_FILE')
+  type = 'videomeg_aud';
+  manufacturer = 'VideoMEG';
+  content = 'audio';
+elseif filetype_check_extension(filename, '.vid') && filetype_check_header(filename, 'ELEKTA_VIDEO_FILE')
+  type = 'videomeg_vid';
+  manufacturer = 'VideoMEG';
+  content = 'video';
+  
   % some other known file types
 elseif length(filename)>4 && exist([filename(1:(end-4)) '.mat'], 'file') && exist([filename(1:(end-4)) '.bin'], 'file')
   % this is a self-defined FCDC data format, consisting of two files

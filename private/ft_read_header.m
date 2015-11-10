@@ -24,13 +24,13 @@ function [hdr] = ft_read_header(filename, varargin)
 %   hdr.chantype            Nx1 cell-array with the channel type, see FT_CHANTYPE
 %   hdr.chanunit            Nx1 cell-array with the physical units, see FT_CHANUNIT
 %
-% For continuously recorded data, nSamplesPre=0 and nTrials=1.
-%
 % For some data formats that are recorded on animal electrophysiology
 % systems (e.g. Neuralynx, Plexon), the following optional fields are
 % returned, which allows for relating the timing of spike and LFP data
-%   hdr.FirstTimeStamp      number, 32 bit or 64 bit unsigned integer
-%   hdr.TimeStampPerSample  double
+%   hdr.FirstTimeStamp      number, represented as 32 bit or 64 bit unsigned integer
+%   hdr.TimeStampPerSample  number, represented in double precision
+%
+% For continuously recorded data, nSamplesPre=0 and nTrials=1.
 %
 % Depending on the file format, additional header information can be
 % returned in the hdr.orig subfield.
@@ -42,6 +42,7 @@ function [hdr] = ft_read_header(filename, varargin)
 %   Yokogawa (*.ave, *.con, *.raw)
 %   NetMEG (*.nc)
 %   ITAB - Chieti (*.mhd)
+%   Tristan Babysquid (*.fif)
 %
 % The following EEG dataformats are supported
 %   ANT - Advanced Neuro Technology, EEProbe (*.avr, *.eeg, *.cnt)
@@ -91,7 +92,7 @@ function [hdr] = ft_read_header(filename, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_read_header.m 10451 2015-06-10 22:00:07Z roboos $
+% $Id: ft_read_header.m 10843 2015-11-05 21:39:54Z roboos $
 
 % TODO channel renaming should be made a general option (see bham_bdf)
 
@@ -156,9 +157,12 @@ if iscell(headerformat)
 end
 
 if strcmp(headerformat, 'compressed')
-  % we are dealing with a compressed dataset, inflate it first
+  % the file is compressed, unzip on the fly
+  inflated     = true;
   filename     = inflate_file(filename);
   headerformat = ft_filetype(filename);
+else
+  inflated     = false;
 end
 
 realtime = any(strcmp(headerformat, {'fcdc_buffer', 'ctf_shm', 'fcdc_mysql'}));
@@ -241,7 +245,7 @@ hdr = [];
 % read the data with the low-level reading function
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 switch headerformat
-   case 'AnyWave'
+  case 'AnyWave'
     orig = read_ahdf5_hdr(datafile);
     hdr.orig = orig;
     hdr.Fs = orig.channels(1).samplingRate;
@@ -671,16 +675,16 @@ switch headerformat
   case 'edf'
     % this reader is largely similar to the bdf reader
     if isempty(chanindx)
-        hdr = read_edf(filename);
+      hdr = read_edf(filename);
     else
-        hdr = read_edf(filename,[],1);
-        if chanindx > hdr.orig.NS
-            error('FILEIO:InvalidChanIndx', 'selected channels are not present in the data');
-        else
-            hdr = read_edf(filename,[],chanindx);
-        end;
+      hdr = read_edf(filename,[],1);
+      if chanindx > hdr.orig.NS
+        error('FILEIO:InvalidChanIndx', 'selected channels are not present in the data');
+      else
+        hdr = read_edf(filename,[],chanindx);
+      end;
     end;
- 
+    
   case 'eep_avr'
     % check that the required low-level toolbox is available
     ft_hastoolbox('eeprobe', 1);
@@ -707,8 +711,8 @@ switch headerformat
     hdr.nTrials     = 1;        % it can always be interpreted as continuous data
     hdr.orig        = orig;     % remember the original details
     
-
- case 'eeglab_set'
+    
+  case 'eeglab_set'
     hdr = read_eeglabheader(filename);
     
   case 'eeglab_erp'
@@ -1097,8 +1101,8 @@ switch headerformat
     if isunix && filename(1)~=filesep
       % add the full path to the dataset directory
       filename = fullfile(pwd, filename);
-    elseif ispc && filename(2)~=':'
-      % add the full path, including drive letter
+    elseif ispc && ~any(strcmp(filename(2),{':','\'}))
+      % add the full path, including drive letter or slashes as needed.
       filename = fullfile(pwd, filename);
     end
     hdr = read_mff_header(filename);
@@ -1218,6 +1222,22 @@ switch headerformat
       end
     end
     
+    if ~isfield(hdr, 'chantype')
+      % prevent overwriting the chantypes that we might have gotten from a RES4 chunk
+      hdr.chantype = cell(hdr.nChans,1);
+      if hdr.nChans < 2000 % don't do this for fMRI etc.
+        hdr.chantype = repmat({'unknown'}, 1, hdr.nChans);
+      end
+    end
+    
+    if ~isfield(hdr, 'chanunit')
+      % prevent overwriting the chanunits that we might have gotten from a RES4 chunk
+      hdr.chanunit = cell(hdr.nChans,1);
+      if hdr.nChans < 2000 % don't do this for fMRI etc.
+        hdr.chanunit = repmat({'unknown'}, 1, hdr.nChans);
+      end
+    end
+    
     hdr.orig.bufsize = orig.bufsize;
     
     
@@ -1304,7 +1324,7 @@ switch headerformat
     packetsize = (4*2 + 6*2 + 16*43*2); % in bytes
     % read the first packet
     fid  = fopen(filename, 'r');
-    buf  = fread(fid, packetsize/2, 'uint16');  
+    buf  = fread(fid, packetsize/2, 'uint16');
     fclose(fid);
     
     if buf(1)==0
@@ -1322,10 +1342,10 @@ switch headerformat
     
     hdr             = [];
     hdr.Fs          = packet.fsample;
-    hdr.nChans      = packet.nchan;  
+    hdr.nChans      = packet.nchan;
     hdr.nSamples    = 43;
-    hdr.nSamplesPre = 0;        
-    hdr.nTrials     = npackets; 
+    hdr.nSamplesPre = 0;
+    hdr.nTrials     = npackets;
     hdr.label       = cell(hdr.nChans,1);
     hdr.chantype    = cell(hdr.nChans,1);
     hdr.chanunit    = cell(hdr.nChans,1);
@@ -1685,6 +1705,7 @@ switch headerformat
     % this pertains to generic header file, and the other neuroscope
     % formats will recurse into this one
     [p,f,e]    = fileparts(filename);
+    if isempty(p), p = pwd; end
     listing    = dir(p);
     filenames  = {listing.name}';
     
@@ -1805,8 +1826,8 @@ switch headerformat
     hdr.orig = orig;
     
   case 'oxy3'
-    ft_hastoolbox('artinis', 1);    
-    hdr = read_artinis_oxy3(filename);    
+    ft_hastoolbox('artinis', 1);
+    hdr = read_artinis_oxy3(filename);
     
   case 'plexon_ds'
     hdr = read_plexon_ds(filename);
@@ -2030,6 +2051,40 @@ switch headerformat
       end
     end
     hdr.orig = orig;
+    
+  case 'blackrock_nsx'
+    ft_hastoolbox('NPMK', 1);
+    
+    % ensure that the filename contains a full path specification,
+    % otherwise the low-level function fails
+    [p,f,e] = fileparts(filename);
+    if ~isempty(p)
+      % this is OK
+    elseif isempty(p)
+      filename = which(filename);
+    end
+    orig = openNSx(filename, 'noread');
+    
+    hdr        = [];
+    hdr.orig   = orig;
+    hdr.Fs     = orig.MetaTags.SamplingFreq;
+    hdr.nChans = orig.MetaTags.ChannelCount;
+    hdr.nSamples    = orig.MetaTags.DataPoints;
+    hdr.nSamplesPre = 0;
+    hdr.nTrials     = 1; %?
+    hdr.label       = deblank({orig.ElectrodesInfo.Label})';
+    hdr.chanunit    = deblank({hdr.orig.ElectrodesInfo.AnalogUnits})';
+    
+  case 'videomeg_aud'
+    hdr = read_videomeg_aud(filename);
+    
+  case 'videomeg_vid'
+    hdr = read_videomeg_vid(filename);
+    checkUniqueLabels = false;
+     
+  case 'blackrock_nev'
+    error('this still needs some work');
+    
   otherwise
     if strcmp(fallback, 'biosig') && ft_hastoolbox('BIOSIG', 1)
       hdr = read_biosig_header(filename);
@@ -2080,18 +2135,15 @@ if checkUniqueLabels
   end
 end
 
-% ensure that it is a column array
-hdr.label = hdr.label(:);
-
 % as of November 2011, the header is supposed to include the channel type (see FT_CHANTYPE,
 % e.g. meggrad, megref, eeg) and the units of each channel (see FT_CHANUNIT, e.g. uV, fT)
 
-if ~isfield(hdr, 'chantype')
+if ~isfield(hdr, 'chantype') && checkUniqueLabels
   % use a helper function which has some built in intelligence
   hdr.chantype = ft_chantype(hdr);
 end % for
 
-if ~isfield(hdr, 'chanunit')
+if ~isfield(hdr, 'chanunit') && checkUniqueLabels
   % use a helper function which has some built in intelligence
   hdr.chanunit = ft_chanunit(hdr);
 end % for
@@ -2106,6 +2158,11 @@ if isfield(hdr, 'elec')
   hdr.elec = ft_datatype_sens(hdr.elec);
 end
 
+% ensure that these are column arrays
+hdr.label    = hdr.label(:);
+if isfield(hdr, 'chantype'), hdr.chantype = hdr.chantype(:); end
+if isfield(hdr, 'chanunit'), hdr.chanunit = hdr.chanunit(:); end
+
 % ensure that these are double precision and not integers, otherwise
 % subsequent computations that depend on these might be messed up
 hdr.Fs          = double(hdr.Fs);
@@ -2113,6 +2170,11 @@ hdr.nSamples    = double(hdr.nSamples);
 hdr.nSamplesPre = double(hdr.nSamplesPre);
 hdr.nTrials     = double(hdr.nTrials);
 hdr.nChans      = double(hdr.nChans);
+
+if inflated
+  % compressed file has been unzipped on the fly, clean up
+  delete(filename);
+end
 
 if cache && exist(headerfile, 'file')
   % put the header in the cache

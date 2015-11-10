@@ -1,16 +1,18 @@
 function view(tree)
-% XMLTREE/VIEW View Method
+% XMLTREE/VIEW View Method (deprecated)
 % FORMAT view(tree)
 % 
 % tree   - XMLTree object
 %__________________________________________________________________________
 %
-% Display an XML tree in a graphical interface
+% Display an XML tree in a graphical interface.
+%
+% This function is DEPRECATED: use EDITOR instead.
 %__________________________________________________________________________
-% Copyright (C) 2002-2011  http://www.artefact.tk/
+% Copyright (C) 2002-2015  http://www.artefact.tk/
 
 % Guillaume Flandin
-% $Id: view.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id: view.m 10858 2015-11-10 12:40:42Z roboos $
 
 
 %error(nargchk(1,1,nargin));
