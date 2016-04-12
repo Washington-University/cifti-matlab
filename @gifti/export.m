@@ -8,7 +8,7 @@ function s = export(this,target)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: export.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 if numel(this) > 1, warning('Only handle scalar objects yet.'); end
 

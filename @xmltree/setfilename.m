@@ -11,6 +11,6 @@ function tree = setfilename(tree,filename)
 % Copyright (C) 2002-2011  http://www.artefact.tk/
 
 % Guillaume Flandin
-% $Id: setfilename.m 4460 2011-09-05 14:52:16Z guillaume $
+% $Id$
 
 tree.filename = filename;

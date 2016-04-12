@@ -4,7 +4,7 @@ function d = getdict
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: getdict.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 persistent dict;
 if ~isempty(dict)

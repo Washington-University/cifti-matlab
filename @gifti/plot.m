@@ -4,7 +4,7 @@ function varargout = plot(varargin)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: plot.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 % if ishandle(varargin{1})
 %     h = figure(varargin{1});

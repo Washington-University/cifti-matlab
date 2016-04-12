@@ -7,7 +7,7 @@ function this = read_gifti_file(filename, this)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: read_gifti_file.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 % Import XML-based GIfTI file
 %--------------------------------------------------------------------------

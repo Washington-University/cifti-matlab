@@ -10,7 +10,7 @@ function save(this,filename,encoding)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: save.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 
 % Check filename and file format

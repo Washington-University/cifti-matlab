@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2008-2013 Wellcome Trust Centre for Neuroimaging
 #
-# $Id: Makefile 5459 2013-05-01 17:51:59Z guillaume $
+# $Id$
 
 include ../../src/Makefile.var
 

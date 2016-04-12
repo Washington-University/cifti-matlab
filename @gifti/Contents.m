@@ -19,7 +19,7 @@
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: Contents.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 % GIfTI file format for MATLAB (The Mathworks, Inc.).
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging

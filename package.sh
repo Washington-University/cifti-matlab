@@ -17,7 +17,7 @@ fi
 echo Copying from ${SOURCE} to ${DESTINATION}
 
 # update the version
-svn info ${SOURCE} | grep ^Last > ${DESTINATION}/VERSION
+git rev-parse HEAD > ${DESTINATION}/VERSION
 
 # main functions
 cp ${SOURCE}/fileio/ft_read_cifti.m                      ${DESTINATION} 
@@ -82,7 +82,7 @@ cp ${SOURCE}/fileio/private/read_stl.m                   ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/read_vtk.m                   ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/read_yokogawa_header.m       ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/read_yokogawa_header_new.m   ${DESTINATION}/private
-cp ${SOURCE}/fileio/private/scalingfactor.m              ${DESTINATION}/private
+cp ${SOURCE}/utilities/ft_scalingfactor.m                ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/surf_to_tetgen.m             ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/tokenize.m                   ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/write_nifti2_hdr.m           ${DESTINATION}/private

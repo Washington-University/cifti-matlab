@@ -16,7 +16,7 @@ function s = convert(tree,uid)
 % Copyright (C) 2002-2015  http://www.artefact.tk/
 
 % Guillaume Flandin
-% $Id: convert.m 10858 2015-11-10 12:40:42Z roboos $
+% $Id$
 
 % Exemple:
 % tree = '<a><b>field1</b><c>field2</c><b>field3</b></a>';

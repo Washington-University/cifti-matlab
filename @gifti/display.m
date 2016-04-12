@@ -6,7 +6,7 @@ function display(this)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: display.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 display_name = inputname(1);
 if isempty(display_name)

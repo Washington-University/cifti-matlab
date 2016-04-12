@@ -23,7 +23,7 @@ function [obj] = ft_convert_units(obj, target, varargin)
 
 % Copyright (C) 2005-2013, Robert Oostenveld
 %
-% This file is part of FieldTrip, see http://www.ru.nl/neuroimaging/fieldtrip
+% This file is part of FieldTrip, see http://www.fieldtriptoolbox.org
 % for the documentation and details.
 %
 %    FieldTrip is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@ function [obj] = ft_convert_units(obj, target, varargin)
 %    You should have received a copy of the GNU General Public License
 %    along with FieldTrip. If not, see <http://www.gnu.org/licenses/>.
 %
-% $Id: ft_convert_units.m 10764 2015-10-09 07:54:23Z roboos $
+% $Id$
 
 % This function consists of three parts:
 %   1) determine the input units
@@ -165,7 +165,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % compute the scaling factor from the input units to the desired ones
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-scale = scalingfactor(unit, target);
+scale = ft_scalingfactor(unit, target);
 
 if istrue(feedback)
   % give some information about the conversion
@@ -243,6 +243,12 @@ end
 if isfield(obj, 'transformorig'),
   H = diag([scale scale scale 1]);
   obj.transformorig = H * obj.transformorig;
+end
+
+% sourcemodel obtained through mne also has a orig-field with the high
+% number of vertices
+if isfield(obj, 'orig') && (isfield(obj.orig, 'pnt') || isfield(obj.orig, 'pos'))
+  obj.orig.pnt = scale * obj.orig.pnt; 
 end
 
 % remember the unit

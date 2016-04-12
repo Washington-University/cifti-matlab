@@ -52,4 +52,4 @@
 % Copyright 2002-2015  http://www.artefact.tk/
 
 % Guillaume Flandin <Guillaume@artefact.tk>
-% $Id: Contents.m 10858 2015-11-10 12:40:42Z roboos $
+% $Id$

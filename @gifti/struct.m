@@ -7,7 +7,7 @@ function s = struct(this)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Guillaume Flandin
-% $Id: struct.m 8776 2013-11-14 09:04:48Z roboos $
+% $Id$
 
 names = fieldnames(this);
 names = unique(names);
