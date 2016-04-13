@@ -30,9 +30,7 @@ cp -r ${SOURCE}/external/gifti/@xmltree                  ${DESTINATION}
 
 
 # first order dependencies, i.e. called by main functions
-cp ${SOURCE}/fileio/ft_read_cifti.m                      ${DESTINATION}/private
 cp ${SOURCE}/fileio/ft_read_headshape.m                  ${DESTINATION}/private
-cp ${SOURCE}/fileio/ft_write_cifti.m                     ${DESTINATION}/private
 cp ${SOURCE}/fileio/ft_write_headshape.m                 ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/fixname.m                    ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_getopt.m                  ${DESTINATION}/private
@@ -52,15 +50,11 @@ cp ${SOURCE}/utilities/removefields.m                    ${DESTINATION}/private
 
 # second order dependencies, i.e. called by first order functions
 cp ${SOURCE}/fileio/ft_filetype.m                        ${DESTINATION}/private
-cp ${SOURCE}/fileio/ft_filetype.m                        ${DESTINATION}/private 
-cp ${SOURCE}/fileio/ft_read_cifti.m                      ${DESTINATION}/private
 cp ${SOURCE}/fileio/ft_read_header.m                     ${DESTINATION}/private
 cp ${SOURCE}/fileio/ft_read_headshape.m                  ${DESTINATION}/private
 cp ${SOURCE}/fileio/ft_read_mri.m                        ${DESTINATION}/private
 cp ${SOURCE}/fileio/ft_read_sens.m                       ${DESTINATION}/private
 cp ${SOURCE}/fileio/ft_read_vol.m                        ${DESTINATION}/private
-cp ${SOURCE}/fileio/ft_write_cifti.m                     ${DESTINATION}/private
-cp ${SOURCE}/fileio/ft_write_cifti.m                     ${DESTINATION}/private 
 cp ${SOURCE}/fileio/ft_write_headshape.m                 ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/fetch_url.m                  ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/find_outermost_boundary.m    ${DESTINATION}/private
@@ -69,7 +63,6 @@ cp ${SOURCE}/fileio/private/fixpos.m                     ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_convert_units.m           ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_datatype_sens.m           ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_getopt.*                  ${DESTINATION}/private
-cp ${SOURCE}/fileio/private/ft_getopt.m                  ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_hastoolbox.m              ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_scalingfactor.m           ${DESTINATION}/private
 cp ${SOURCE}/fileio/private/ft_senstype.m                ${DESTINATION}/private
