@@ -17,7 +17,9 @@ fi
 echo Copying from ${SOURCE} to ${DESTINATION}
 
 # update the version
-git rev-parse HEAD > ${DESTINATION}/VERSION
+REV=`cd ${SOURCE} && git rev-parse HEAD`
+date -u                                                   >  ${DESTINATION}/VERSION
+echo https://github.com/fieldtrip/fieldtrip/commits/$REV  >> ${DESTINATION}/VERSION
 
 # main functions
 cp ${SOURCE}/fileio/ft_read_cifti.m                      ${DESTINATION} 
@@ -26,7 +28,6 @@ cp ${SOURCE}/fileio/ft_write_cifti.m                     ${DESTINATION}
 # external dependency
 cp -r ${SOURCE}/external/gifti/@gifti                    ${DESTINATION} 
 cp -r ${SOURCE}/external/gifti/@xmltree                  ${DESTINATION} 
-
 
 
 # first order dependencies, i.e. called by main functions
