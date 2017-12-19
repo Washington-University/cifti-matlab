@@ -1,6 +1,8 @@
 MATLAB code for reading and writing CIFTI files
 ===============================================
 
+NOTE:  The code available in this repository has known behaviors that are problematic when using fMRI CIFTI data processed with HCP templates.  For fMRI CIFTI data, we recommend and provide support for using ciftiopen/ciftisave/ciftisavereset, available at https://wiki.humanconnectome.org/display/PublicData/HCP+Users+FAQ, FAQ #2, option B.
+
 This repository contains a subset of the MATLAB code from the FieldTrip and
 the SPM toolboxes. It should allow MATLAB users and developers to integrate
 the CIFTI file format in their analysis pipelines, using the data and tools
