@@ -2,9 +2,12 @@ function [hdr, fid, cleanupObj] = read_nifti2_hdr(filename)
     % READ_NIFTI2_HDR
     %
     % Use as
-    %   [hdr] = read_nifti2_hdr(filename)
+    %   [hdr, fid, cleanupObj] = read_nifti2_hdr(filename)
     % where
     %   filename   = string
+    %
+    % cleanupObj MUST be kept around until you are done reading from fid,
+    %   as it will close fid when it is destroyed.
     %   
     % This implements the format as described at
     %   http://www.nitrc.org/forum/forum.php?thread_id=2148&forum_id=1941
