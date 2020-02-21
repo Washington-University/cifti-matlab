@@ -1,19 +1,20 @@
-MATLAB code for reading and writing CIFTI files
-===============================================
+MATLAB code for reading and writing CIFTI files, v2, alpha testing
+==================================================================
 
-NOTE:  The code available in this repository has known behaviors that are problematic when using fMRI CIFTI data processed with HCP templates.  For fMRI CIFTI data, we recommend and provide support for using ciftiopen/ciftisave/ciftisavereset, available at https://wiki.humanconnectome.org/display/PublicData/HCP+Users+FAQ, FAQ #2, option B.
+This code is intended to be fully compatible with the CIFTI-2 format,
+without external dependencies (except cifti-1 files require wb_command
+for conversion), returning a matlab structure that exposes the
+information contained in the cifti XML with minimal translation, as
+well as the data matrix with no extra padding.
 
-This repository contains a subset of the MATLAB code from the FieldTrip and
-the SPM toolboxes. It should allow MATLAB users and developers to integrate
-the CIFTI file format in their analysis pipelines, using the data and tools
-of the Human Connectome Project (HCP).
+Additionally, it provides numerous helper functions to make many common
+operations (extracting the data for one structure) into a single line
+of intuitive code.
 
-See http://www.humanconnectome.org for details on the HCP.
+If you want the previous code that was derived from FieldTrip, it is in
+the "ft_cifti" folder.
 
-See http://www.nitrc.org/forum/forum.php?forum_id=1955 for details on CIFTI.
-
-See http://www.fieldtriptoolbox.org for details on FieldTrip.
-
-See http://www.fil.ion.ucl.ac.uk/spm/ for details on SPM.
-
-See the LICENSE  and GPL files for copyright information.
+Currently, the cifti structure returned by this library uses 0-based
+indices for vertex and voxel indices, 1-based for cifti indices, and
+the helper functions return 1-based indices for everything.  Be aware
+that this library is in alpha testing, and this convention may change.
