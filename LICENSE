@@ -1,5 +1,5 @@
 cifti-matlab v2: A MATLAB/octave toolbox for cifti files
-Copyright 2020 Tim Coalson
+Copyright 2020 Washington University School of Medicine
 Copyright 2013 Robert Oostenveld (read_nifti2_hdr.m)
 
 This program is free software; you can redistribute it and/or modify
