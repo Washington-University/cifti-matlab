@@ -4,7 +4,7 @@ MATLAB code for reading and writing CIFTI files, v2, alpha testing
 This code is intended to be fully compatible with the CIFTI-2 format,
 without external dependencies (except that CIFTI-1 files require
 wb_command for conversion), returning a structure that exposes the
-information contained in the cifti XML with minimal translation, as well
+information contained in the CIFTI-2 XML with minimal translation, as well
 as the data matrix with no added padding.  The read_cifti function is
 the intended starting point, ciftiopen and similar are compatibility
 wrappers so that the library can be used in older code.

@@ -16,9 +16,10 @@ function s = convert(tree,uid)
 % Copyright (C) 2002-2015  http://www.artefact.tk/
 
 % Guillaume Flandin
+% Edited 2020 by Tim Coalson to ignore processing instructions
 % $Id: convert.m 6480 2015-06-13 01:08:30Z guillaume $
 
-% Exemple:
+% Example:
 % tree = '<a><b>field1</b><c>field2</c><b>field3</b></a>';
 % toto = convert(xmltree(tree));
 % <=> toto = struct('b',{{'field1', 'field3'}},'c','field2')
@@ -98,24 +99,7 @@ function s = sub_convert(tree,s,uid,arg)
         case 'cdata'
             s = sub_setfield(s,arg{:},get(tree,uid,'value'));
         case 'pi'
-            % Processing instructions are evaluated if possible
-            app = get(tree,uid,'target');
-            switch app
-                case {'matlab',''}
-                    s = sub_setfield(s,arg{:},eval(get(tree,uid,'value')));
-                case 'unix'
-                    s = sub_setfield(s,arg{:},unix(get(tree,uid,'value')));
-                case 'dos'
-                    s = sub_setfield(s,arg{:},dos(get(tree,uid,'value')));
-                case 'system'
-                    s = sub_setfield(s,arg{:},system(get(tree,uid,'value')));
-                otherwise
-                    try
-                        s = sub_setfield(s,arg{:},feval(app,get(tree,uid,'value')));
-                    catch
-                        warning('[XMLTree] Unknown target application');
-                    end
-            end
+            % TSC: ignore processing instructions
         case 'comment'
             % Comments are forgotten
         otherwise
