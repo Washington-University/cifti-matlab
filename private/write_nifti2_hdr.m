@@ -1,7 +1,5 @@
 function [fid, hdr, cleanupObj] = write_nifti2_hdr(hdr, filename)
-    if exist(filename, 'file')
-        delete(filename); %avoid permission issues, and replace links with files instead of overwriting the pointed-to file
-    end
+    mydelete(filename); %avoid permission issues, and replace links with files instead of overwriting the pointed-to file
     fid = fopen(filename, 'Wb'); %always write native-endian - capital W means fwrite() doesn't flush every call
     if fid == -1
         error(['unable to open file "' filename '" for writing']);

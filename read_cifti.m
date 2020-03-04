@@ -34,7 +34,7 @@ function outstruct = read_cifti(filename, varargin)
             warning(['cifti file "' filename '" appears to not be version 2, converting using wb_command...']);
             [~, name, ext] = fileparts(filename);
             tmpfile = [tempname '.' name ext];
-            cleanupObj = onCleanup(@()cleanup(tmpfile)); %make previous obj close our fid, make new cleanup obj to delete temp file
+            cleanupObj = onCleanup(@()mydelete(tmpfile)); %make previous obj close our fid, make new cleanup obj to delete temp file
             my_system([options.wbcmd ' -file-convert -cifti-version-convert ' filename ' 2 ' tmpfile]);
             outstruct = read_cifti(tmpfile, [varargin, {'recursed'}]); %guard against infinite recursion
             return;
@@ -103,12 +103,4 @@ function outstruct = read_cifti(filename, varargin)
     %permute to match ciftiopen: cifti "rows" matching matlab rows
     %hack: 3:2 produces empty array, 3:3 produces [3]
     outstruct.cdata = permute(outstruct.cdata, [2 1 3:(hdr.dim(1) - 4)]);
-end
-
-function cleanup(tempfilename)
-    if ~isempty(dir(tempfilename))
-        %isfile is only on newer matlab, delete nonexistent gives warning, and ls nonexistent gives error
-        %so, dir it is...
-        delete(tempfilename);
-    end
 end
