@@ -1,5 +1,5 @@
-function [vertlist1, ciftilist, numverts] = cifti_dense_get_surface_mapping(diminfo, structure)
-    %function [vertlist1, ciftilist, numverts] = cifti_dense_get_surface_mapping(diminfo, structure)
+function [vertlist1, ciftilist, numverts] = cifti_dense_get_surf_map(diminfo, structure)
+    %function [vertlist1, ciftilist, numverts] = cifti_dense_get_surf_map(diminfo, structure)
     %   Get information on how to map cifti indices to gifti surface vertices.
     %
     %   >> [vertlist1, ciftilist, numverts] = cifti_dense_get_surface_mapping(cifti.diminfo{1}, 'CORTEX_LEFT');

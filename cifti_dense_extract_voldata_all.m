@@ -1,5 +1,5 @@
-function [outdata, outsform1, outroi] = cifti_dense_extract_volume_all(cifti, cropped, dimension)
-    %function [outdata, outsform1, outroi] = cifti_dense_extract_volume_all(cifti, cropped, dimension)
+function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_all(cifti, cropped, dimension)
+    %function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_all(cifti, cropped, dimension)
     %   Extract the data for all cifti volume structures, expanding it to volume frames.
     %   Voxels without data are given a value of zero, and outroi is a logical that is only
     %   true for voxels that have data.
@@ -33,7 +33,7 @@ function [outdata, outsform1, outroi] = cifti_dense_extract_volume_all(cifti, cr
     end
     otherdim = 3 - dimension;
     otherlength = size(cifti.cdata, otherdim);
-    [voxlist1, ciftilist, voldims, outsform1] = cifti_dense_get_vol_all_mapping(cifti.diminfo{dimension}, cropped);
+    [voxlist1, ciftilist, voldims, outsform1] = cifti_dense_get_vol_all_map(cifti.diminfo{dimension}, cropped);
     assert(length(voldims) == 3);
     indlist = cifti_vox2ind(voldims, voxlist1);
     outroi = false(voldims);

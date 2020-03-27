@@ -1,5 +1,5 @@
 function outmap = cifti_diminfo_make_series(nummaps, start, step, unit)
-    %function outmap = cifti_make_series_diminfo(nummaps, start, step, unit)
+    %function outmap = cifti_diminfo_make_series(nummaps, start, step, unit)
     %   Create a new series diminfo object.
     %
     %   Only the nummaps argument is required.
