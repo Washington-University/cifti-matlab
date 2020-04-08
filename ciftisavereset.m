@@ -15,7 +15,7 @@ function ciftisavereset(cifti, filename, varargin)
             case '.sdseries.nii' %this case was not handled in the public version
                 cifti.diminfo{1} = cifti_diminfo_make_scalars(size(cifti.cdata, 1));
                 if size(cifti.cdata, 2) ~= cifti.diminfo{2}.length || ~strcmp(cifti.diminfo{2}.type, 'series')
-                    warning(['resetting series dimension on sdscalar file "' filename '"']); %this was not done in the original ciftisavereset
+                    warning(['resetting series dimension on sdseries file "' filename '"']); %this was not done in the original ciftisavereset
                     cifti.diminfo{2} = cifti_diminfo_make_series(size(cifti.cdata, 2)); %so don't do it except when needed, and give a warning
                 end
             otherwise
