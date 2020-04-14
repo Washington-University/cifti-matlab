@@ -62,7 +62,7 @@ function tree = cifti_write_dense(map, tree, map_uid)
     tree = cifti_write_vol(map.vol, tree, map_uid); %also used by parcels
     for model = map.models(:)'
         if model{1}.start + model{1}.count - 1 > map.length
-            error('map length is less than dense map content');
+            error('length attribute is less than dense map content'); %TODO: check for gaps and overlap?
         end
         [tree, model_uid] = add(tree, map_uid, 'element', 'BrainModel');
         tree = attributes(tree, 'add', model_uid, 'IndexOffset', num2str(model{1}.start - 1)); %NOTE: 1-based cifti indices

@@ -6,7 +6,7 @@ function ciftisave(cifti, filename, varargin)
     end
     tic;
     try
-        write_cifti(cifti, filename);
+        write_cifti(cifti, filename, 'stacklevel', '3');
     catch e
         if length(size(cifti.cdata)) ~= length(cifti.diminfo)
             rethrow(e); %ciftisavereset can't handle that

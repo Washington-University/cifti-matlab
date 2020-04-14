@@ -1,17 +1,33 @@
-function write_cifti(cifti, filename, keep_metadata)
-    %function write_cifti(cifti, filename, keep_metadata)
+function write_cifti(cifti, filename, varargin)
+    %function write_cifti(cifti, filename, option pairs...)
     %   Write a cifti file.
     %
-    %   The keep_metadata argument is optional: if false or not specified, the
-    %   'Provenance' metadata is moved to 'ParentProvenance', 'Provenance' is
-    %   given a generic value, and all other file-level metadata is removed.
+    %   Specifying "..., 'keepmetadata', true" disables automatic provenance: if false
+    %   or not specified, the 'Provenance' metadata is moved to 'ParentProvenance',
+    %   'Provenance' is given a generic value, and all other file-level
+    %   metadata is removed.
+    %
+    %   Specifying "..., 'disableprovenance', true" removes all file-level metadata
+    %   before writing.  If the 'keepmetadata' option is true, this option has no
+    %   effect, but a warning is issued if both options are true.
+    %
+    %   Example usage:
     %
     %   >> cifti = read_cifti('91282_Greyordinates.dscalar.nii');
     %   >> cifti.cdata = outdata;
-    %   >> cifti.diminfo{2} = cifti_make_scalar_diminfo(size(outdata, 2));
+    %   >> cifti.diminfo{2} = cifti_diminfo_make_scalars(size(outdata, 2));
     %   >> write_cifti(cifti, 'ciftiout.dscalar.nii');
-    if nargin < 3
-        keep_metadata = false;
+    libversion = 'alpha version';
+    options = myargparse(varargin, {'stacklevel', 'disableprovenance', 'keepmetadata'}); %stacklevel is an implementation detail, don't add to help
+    if isnan(str2double(options.stacklevel))
+        options.stacklevel = 2;
+    else
+        options.stacklevel = str2double(options.stacklevel); %so it doesn't get "ciftisave" all the time
+    end
+    options.keepmetadata = argtobool(options.keepmetadata, 'keepmetadata');
+    options.disableprovenance = argtobool(options.disableprovenance, 'disableprovenance');
+    if options.keepmetadata && options.disableprovenance
+        warning('both "keepmetadata" and "disableprovenance" are true, ignoring "disableprovenance"');
     end
     if length(cifti.diminfo) < 2 || length(cifti.diminfo) > 3
         error('cifti struct must have 2 or 3 maps');
@@ -23,13 +39,29 @@ function write_cifti(cifti, filename, keep_metadata)
     dims_c = dims_m([2 1 3:length(dims_m)]); %ciftiopen convention, first matlab index is down
     dims_xml = zeros(1, length(cifti.diminfo));
     for i = 1:length(cifti.diminfo)
-        dims_xml(i) = cifti.diminfo{i}.length;
+        dims_xml(i) = cifti_diminfo_length(cifti.diminfo{i});
     end
     if any(dims_m ~= dims_xml)
         error('dimension length mismatch between data and cifti struct');
     end
-    %TODO: provenance?
-    xmlbytes = cifti_write_xml(cifti, keep_metadata);
+    if ~options.keepmetadata
+        if ~options.disableprovenance
+            stack = dbstack;
+            if options.stacklevel > length(stack)
+                newprov = 'written from matlab/octave prompt or script';
+            else
+                newprov = ['written from function ' stack(options.stacklevel).name ' in file ' stack(options.stacklevel).file];
+            end
+            prov = cifti_metadata_get(cifti.metadata, 'Provenance');
+            cifti.metadata = struct('key', {'Provenance'; 'ProgramProvenance'}, 'value', {newprov; ['write_cifti.m ' libversion]});
+            if ~isempty(prov)
+                cifti.metadata = cifti_metadata_set(cifti.metadata, 'ParentProvenance', prov);
+            end
+        else
+            cifti.metadata = struct('key', {}, 'value', {});
+        end
+    end
+    xmlbytes = cifti_write_xml(cifti, true);
     header = make_nifti2_hdr();
     extension = struct('ecode', 32, 'edata', xmlbytes); %header writing function will pad the extensions with nulls
     header.extensions = extension; %don't need concatenation for only one nifti extension
@@ -127,5 +159,16 @@ function [code, string] = cifti_intent_code(cifti, filename)
                 end
             end
         end
+    end
+end
+
+function output = argtobool(input, argname)
+    switch input
+        case {0, false, '', '0', 'no', 'false', ''} %empty string defaults to false
+            output = false;
+        case {1, true, '1', 'yes', 'true'}
+            output = true;
+        otherwise
+            error(['unrecognized value for option "' argname '", please use 0/1, true/false, yes/no']);
     end
 end

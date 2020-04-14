@@ -2,11 +2,11 @@ function outstruct = read_cifti(filename, varargin)
     %function outstruct = read_cifti(filename, ...)
     %   Read a cifti file.
     %   If wb_command is not on your PATH and you need to read cifti-1
-    %   files, specify ", 'wbcmd', '<wb_command with full path>'".
+    %   files, specify "..., 'wbcmd', '<wb_command with full path>'".
     %
     %   >> cifti = read_cifti('91282_Greyordinates.dscalar.nii');
     %   >> cifti.cdata = outdata;
-    %   >> cifti.diminfo{2} = cifti_make_scalar_diminfo(size(outdata, 2));
+    %   >> cifti.diminfo{2} = cifti_diminfo_make_scalars(size(outdata, 2));
     %   >> write_cifti(cifti, 'ciftiout.dscalar.nii');
     options = myargparse(varargin, {'wbcmd'});
     if isempty(options.wbcmd)
