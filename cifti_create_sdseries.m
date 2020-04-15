@@ -13,6 +13,6 @@ function cifti = cifti_create_sdseries(data, start, step, unit)
         unit = 'SECOND'; %let make_series sanity check whatever the user gave
     end
     cifti = struct('cdata', data, 'metadata', {{}}, 'diminfo', {cell(1, 2)});
-    cifti.diminfo{1} = cifti_diminfo_make_series(size(data, 1), start, step, unit);
-    cifti.diminfo{2} = cifti_diminfo_make_scalars(size(data, 2));
+    cifti.diminfo{1} = cifti_diminfo_make_scalars(size(data, 1));
+    cifti.diminfo{2} = cifti_diminfo_make_series(size(data, 2), start, step, unit);
 end
