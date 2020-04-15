@@ -8,7 +8,7 @@ function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
     %   The metadatalist argument, if provided, must be a cell vector of
     %   struct vectors with the same structure as the metadata in a cifti struct.
     outmap = struct('type', 'scalars', 'length', nummaps, 'maps', struct('name', cell(nummaps, 1), 'metadata', cell(nummaps, 1)));
-    if nargin >= 2
+    if nargin >= 2 && ~isempty(namelist)
         if ~iscell(namelist)
             if nummaps ~= 1
                 error('namelist is not a cell array, and nummaps is not 1');
@@ -19,7 +19,7 @@ function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
             end
         end
     end
-    if nargin >= 3
+    if nargin >= 3 && ~isempty(metadatalist)
         if ~iscell(metadatalist)
             error('metadatalist must be a cell array');
         end
@@ -28,7 +28,7 @@ function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
         end
     end
     for i = 1:nummaps
-        if nargin >= 2
+        if nargin >= 2 && ~isempty(namelist)
             if ~iscell(namelist)
                 outmap.maps(i).name = namelist;
             else
@@ -37,7 +37,7 @@ function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
         else
             outmap.maps(i).name = '';
         end
-        if nargin >= 3
+        if nargin >= 3 && ~isempty(metadatalist)
             outmap.maps(i).metadata = metadatalist{i};
         end
     end
