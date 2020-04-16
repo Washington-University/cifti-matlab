@@ -7,7 +7,9 @@ function cifti = cifti_create_dscalar_from_template(ciftitemplate, data, varargi
     %   dense mapping from.
     %
     %   The 'namelist' and 'metadatalist' options are also available for setting the
-    %   contents of the scalar map.
+    %   contents of the scalar map, like:
+    %
+    %   newcifti = cifti_create_dscalar_from_template(oldcifti, newdata, 'namelist', {'sulc', 'curv'});
     options = myargparse(varargin, {'dimension', 'namelist', 'metadatalist'});
     if isempty(options.dimension)
         options.dimension = [];

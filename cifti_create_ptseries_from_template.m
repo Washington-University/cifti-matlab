@@ -7,7 +7,9 @@ function cifti = cifti_create_ptseries_from_template(ciftitemplate, data, vararg
     %   parcels mapping from.
     %
     %   There are also 'start', 'step', and 'unit' options that default to 0, 1, and
-    %   'SECOND'.
+    %   'SECOND', specify them like this:
+    %
+    %   newcifti = cifti_create_ptseries_from_template(oldcifti, newdata, 'step', 0.72);
     options = myargparse(varargin, {'start', 'step', 'unit', 'dimension'});
     if isempty(options.start)
         options.start = 0;

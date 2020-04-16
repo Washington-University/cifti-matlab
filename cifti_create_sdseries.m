@@ -3,7 +3,9 @@ function cifti = cifti_create_sdseries(data, varargin)
     %   Construct an sdseries cifti object around the 2D data matrix.
     %
     %   To control the contents of the scalar and series diminfo, use 'start',
-    %   'step', 'unit', 'namelist', and 'metadatalist' options.
+    %   'step', 'unit', 'namelist', and 'metadatalist' options, like:
+    %
+    %   newcifti = cifti_create_sdseries(mydata, 'step', 0.72);
     options = myargparse(varargin, {'start', 'step', 'unit', 'namelist', 'metadatalist'});
     if isempty(options.start)
         options.start = 0;
