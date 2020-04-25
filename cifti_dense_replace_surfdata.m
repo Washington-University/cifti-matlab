@@ -40,6 +40,6 @@ function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
     if dimension == 1
         cifti.cdata(ciftilist, :) = data(vertlist, :);
     else
-        cifti.cdata(:, ciftilist) = data(vertlist, :);
+        cifti.cdata(:, ciftilist) = data(vertlist, :)';
     end
 end

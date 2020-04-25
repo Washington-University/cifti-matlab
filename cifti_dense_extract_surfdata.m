@@ -34,6 +34,6 @@ function [outdata, outroi] = cifti_dense_extract_surfdata(cifti, structure, dime
     if dimension == 1
         outdata(vertlist, :) = cifti.cdata(ciftilist, :);
     else
-        outdata(vertlist, :) = cifti.cdata(:, ciftilist);
+        outdata(vertlist, :) = cifti.cdata(:, ciftilist)';
     end
 end

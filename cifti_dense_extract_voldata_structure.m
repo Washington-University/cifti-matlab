@@ -44,7 +44,7 @@ function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_structure(ci
     else
         tempframe = zeros(voldims, 'single');
         %need a dimension after the ind2sub result, so loop
-        for i = 1:size(cifti.cdata, otherdim)
+        for i = 1:otherlength
             if dimension == 1
                 tempframe(indlist) = cifti.cdata(ciftilist, i);
             else
