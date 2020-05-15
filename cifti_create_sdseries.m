@@ -7,6 +7,9 @@ function cifti = cifti_create_sdseries(data, varargin)
     %
     %   newcifti = cifti_create_sdseries(mydata, 'step', 0.72);
     options = myargparse(varargin, {'start', 'step', 'unit', 'namelist', 'metadatalist'});
+    if length(size(data)) ~= 2
+        error('input data must be a 2D matrix');
+    end
     if isempty(options.start)
         options.start = 0;
     end

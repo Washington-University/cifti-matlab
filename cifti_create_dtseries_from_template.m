@@ -11,6 +11,9 @@ function cifti = cifti_create_dtseries_from_template(ciftitemplate, data, vararg
     %
     %   newcifti = cifti_create_dtseries_from_template(oldcifti, newdata, 'step', 0.72);
     options = myargparse(varargin, {'start', 'step', 'unit', 'dimension'});
+    if length(size(data)) ~= 2
+        error('input data must be a 2D matrix');
+    end
     if isempty(options.start)
         options.start = 0;
     end

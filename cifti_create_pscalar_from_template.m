@@ -11,6 +11,9 @@ function cifti = cifti_create_pscalar_from_template(ciftitemplate, data, varargi
     %
     %   newcifti = cifti_create_pscalar_from_template(oldcifti, newdata, 'namelist', {'sulc', 'curv'});
     options = myargparse(varargin, {'dimension', 'namelist', 'metadatalist'});
+    if length(size(data)) ~= 2
+        error('input data must be a 2D matrix');
+    end
     if isempty(options.dimension)
         options.dimension = [];
         for i = 1:length(ciftitemplate.diminfo)
