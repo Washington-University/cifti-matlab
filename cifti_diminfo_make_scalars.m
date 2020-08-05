@@ -7,6 +7,9 @@ function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
     %   or a cell vector of char vectors.
     %   The metadatalist argument, if provided, must be a cell vector of
     %   struct vectors with the same structure as the metadata in a cifti struct.
+    if ~isscalar(nummaps) || round(nummaps) ~= nummaps || ~isfinite(nummaps) || nummaps < 1
+        error('number of maps must be a finite, positive integer')
+    end
     outmap = struct('type', 'scalars', 'length', nummaps, 'maps', struct('name', cell(nummaps, 1), 'metadata', cell(nummaps, 1)));
     if nargin >= 2 && ~isempty(namelist)
         if ~iscell(namelist)
