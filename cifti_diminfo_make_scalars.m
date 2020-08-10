@@ -10,7 +10,7 @@ function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
     if ~isscalar(nummaps) || round(nummaps) ~= nummaps || ~isfinite(nummaps) || nummaps < 1
         error('number of maps must be a finite, positive integer')
     end
-    outmap = struct('type', 'scalars', 'length', nummaps, 'maps', struct('name', cell(nummaps, 1), 'metadata', cell(nummaps, 1)));
+    outmap = struct('type', 'scalars', 'length', nummaps, 'maps', struct('name', cell(1, nummaps), 'metadata', cell(1, nummaps)));
     if nargin >= 2 && ~isempty(namelist)
         if ~iscell(namelist)
             if nummaps ~= 1

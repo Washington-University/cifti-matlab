@@ -26,13 +26,9 @@ function outstruct = cifti_parse_xml(bytes, filename)
     outstruct.diminfo = {};
     for map_uid = map_uids
         [map, applies] = cifti_parse_map(tree, map_uid, filename);
-        for i = applies
-            j = i;
-            if (i < 3) %NOTE: swap 1 and 2 to match ciftiopen cdata convention...
-                j = 3 - i; %NOTE: no, this isn't complex
-            end
-            outstruct.diminfo{j} = map;
-        end
+        appliesmod = applies;
+        appliesmod(applies < 3) = 3 - applies(applies < 3); %NOTE: swap 1 and 2 to match ciftiopen cdata convention...
+        outstruct.diminfo(appliesmod) = {map}; %lhs {} doesn't support multi-assignment, but () on cell does...
     end
     for i = length(outstruct.diminfo)
         if isempty(outstruct.diminfo{i})
@@ -60,7 +56,7 @@ function metastruct = cifti_parse_metadata(tree, uid, filename)
         end
         md_uids = child_match(tree, uid, 'MD');%ignores unexpected elements...
         num_mds = length(md_uids);
-        metastruct = struct('key', cell(num_mds, 1), 'value', cell(num_mds, 1));
+        metastruct = struct('key', cell(1, num_mds), 'value', cell(1, num_mds));
         for i = 1:num_mds
             name_uid = child_match(tree, md_uids(i), 'Name');
             val_uid = child_match(tree, md_uids(i), 'Value');
@@ -114,8 +110,8 @@ function map = cifti_parse_dense(tree, map_uid, filename)
     map = struct('type', 'dense');
     map.vol = cifti_parse_vol(tree, map_uid, filename); %volume also gets used by parcels
     model_uids = child_match(tree, map_uid, 'BrainModel');
-    map.models = cell(length(model_uids), 1);%the model types have different fields, so don't use struct array
-    starts = zeros(length(model_uids), 1);
+    map.models = cell(1, length(model_uids));%the model types have different fields, so don't use struct array
+    starts = zeros(1, length(model_uids));
     for i = 1:length(model_uids)
         model = struct();
         attrs = myattrs(tree, model_uids(i));
@@ -207,8 +203,8 @@ function map = cifti_parse_dense(tree, map_uid, filename)
                 if numelem ~= 3 * model.count
                     myerror('VoxelIndicesIJK does not match IndexCount', filename);
                 end
-                model.voxlist = reshape(voxlist, 3, model.count)'; %transpose because ijk seems like it belongs along the second dimension
-                if isempty(model.voxlist) || ~isreal(model.voxlist) || any(any(model.voxlist < 0 | model.voxlist >= repmat(map.vol.dims, model.count, 1)))
+                model.voxlist = reshape(voxlist, 3, model.count); %looping is along the second dimension, so ijk should be on first dimension
+                if isempty(model.voxlist) || ~isreal(model.voxlist) || any(any(model.voxlist < 0 | model.voxlist >= repmat(map.vol.dims', 1, model.count)))
                     myerror('invalid VoxelIndicesIJK content', filename);
                 end
             otherwise
@@ -231,7 +227,7 @@ function map = cifti_parse_dense(tree, map_uid, filename)
     for model = map.models(:)'
         switch model{1}.type
             case 'vox'
-                allvox = [allvox; model{1}.voxlist]; %#ok<AGROW>
+                allvox = [allvox model{1}.voxlist]; %#ok<AGROW>
         end
         allstructs = [allstructs {model{1}.struct}]; %#ok<AGROW>
     end
@@ -293,7 +289,7 @@ function vol = cifti_parse_vol(tree, map_uid, filename)
         for attr = attrs
             switch attr{1}.key
                 case 'VolumeDimensions'
-                    vol.dims = str2vec(attr{1}.val)'; %make dims a row vector to match voxlist orientation of (whichvox, ijk)
+                    vol.dims = str2vec(attr{1}.val); %zeros(), etc require a row vector
                 otherwise
                     mywarn(['unrecognized Volume attribute "' attr{1}.key '"'], filename);
             end
@@ -325,7 +321,7 @@ function vol = cifti_parse_vol(tree, map_uid, filename)
             myerror('missing MeterExponent attribute in TransformationMatrixVoxelIndicesIJKtoXYZ', filename);
         end
         matrix = str2vec(mygettext(tree, tfm_uid));
-        if length(matrix) ~= 16 || any(matrix(13:16)' ~= [0 0 0 1]) || ~isreal(matrix)
+        if length(matrix) ~= 16 || any(matrix(13:16) ~= [0 0 0 1]) || ~isreal(matrix)
             myerror('malformed matrix in Volume element', filename);
         end
         vol.sform = reshape(matrix, 4, 4)' * 10^(exponent + 3); %convert to mm
@@ -338,7 +334,7 @@ function map = cifti_parse_parcels(tree, map_uid, filename)
     %surfaces
     surf_uids = child_match(tree, map_uid, 'Surface');
     num_surfs = length(surf_uids);
-    map.surflist = struct('struct', cell(num_surfs, 1), 'numvert', cell(num_surfs, 1));
+    map.surflist = struct('struct', cell(1, num_surfs), 'numvert', cell(1, num_surfs));
     for i = 1:num_surfs
         attrs = myattrs(tree, surf_uids(i));
         thissurf = struct();
@@ -366,7 +362,7 @@ function map = cifti_parse_parcels(tree, map_uid, filename)
     end
     parcel_uids = child_match(tree, map_uid, 'Parcel');
     num_parcels = length(parcel_uids);
-    map.parcels = struct('name', cell(num_parcels, 1), 'surfs', cell(num_parcels, 1), 'voxlist', cell(num_parcels, 1));
+    map.parcels = struct('name', cell(1, num_parcels), 'surfs', cell(1, num_parcels), 'voxlist', cell(1, num_parcels));
     for i = 1:num_parcels
         %attributes
         attrs = myattrs(tree, parcel_uids(i));
@@ -385,7 +381,7 @@ function map = cifti_parse_parcels(tree, map_uid, filename)
         %vertices
         vert_uids = child_match(tree, parcel_uids(i), 'Vertices');
         num_vertelem = length(vert_uids);
-        thisparcel.surfs = struct('struct', cell(num_vertelem, 1), 'vertlist', cell(num_vertelem, 1)); %same fields, so use struct array I guess
+        thisparcel.surfs = struct('struct', cell(1, num_vertelem), 'vertlist', cell(1, num_vertelem)); %same fields, so use struct array I guess
         for j = 1:num_vertelem
             attrs = myattrs(tree, vert_uids(j));
             thissurf = struct();
@@ -418,7 +414,7 @@ function map = cifti_parse_parcels(tree, map_uid, filename)
             thissurf.vertlist = vertlist;
             thisparcel.surfs(j) = thissurf;
         end
-        %voxels
+        %voxels - may be nonexistant, in which case we currently make the fields, but leave them empty
         vox_uid = child_match(tree, parcel_uids(i), 'VoxelIndicesIJK');
         if length(vox_uid) > 1
             myerror('multiple VoxelIndicesIJK elements in Parcel element', filename);
@@ -428,12 +424,20 @@ function map = cifti_parse_parcels(tree, map_uid, filename)
         if mod(length(voxlist), 3) ~= 0
             myerror('number of values in VoxelIndicesIJK not a multiple of 3', filename);
         end
-        thisparcel.voxlist = reshape(voxlist, 3, [])'; %transpose because ijk seems like it belongs along the second dimension
+        thisparcel.voxlist = reshape(voxlist, 3, []); %looping is along the second dimension, so ijk should be on first dimension
+        if ~isempty(voxlist) %accept empty VoxelIndicesIJK without Volume element?
+            if ~isfield(map.vol, 'dims')
+                myerror('missing Volume element in parcels map', filename);
+            end
+            if ~isreal(thisparcel.voxlist) || any(any(thisparcel.voxlist < 0 | thisparcel.voxlist >= repmat(map.vol.dims', 1, size(thisparcel.voxlist, 2))))
+                myerror('invalid VoxelIndicesIJK content', filename);
+            end
+        end
         map.parcels(i) = thisparcel;
     end
     map.length = length(map.parcels);
-    allvox = vertcat(map.parcels.voxlist); %FIXME: no idea if this works, need to grab a volume parcellation from somewhere
-    if size(unique(allvox, 'rows'), 1) ~= size(allvox, 1)
+    allvox = horzcat(map.parcels.voxlist);
+    if size(unique(allvox', 'rows'), 1) ~= size(allvox, 2)
         myerror('parcels have repeated or overlapping voxels', filename);
     end
     for surfstruct = {map.surflist.struct}
@@ -441,7 +445,7 @@ function map = cifti_parse_parcels(tree, map_uid, filename)
         for j = 1:length(map.parcels)
             for i = 1:length(map.parcels(j).surfs)
                 if strcmp(map.parcels(j).surfs(i).struct, surfstruct)
-                    structvert = [structvert; map.parcels(j).surfs(i).vertlist]; %#ok<AGROW>
+                    structvert = [structvert map.parcels(j).surfs(i).vertlist]; %#ok<AGROW>
                 end
             end
         end
@@ -507,7 +511,7 @@ function map = cifti_parse_scalars(tree, map_uid, filename)
     if map.length == 0
         myerror('empty scalars mapping', filename);
     end
-    map.maps = struct('name', cell(map.length, 1), 'metadata', cell(map.length, 1));
+    map.maps = struct('name', cell(1, map.length), 'metadata', cell(1, map.length));
     for i = 1:map.length
         thismap = struct();
         thismap.metadata = cifti_parse_metadata(tree, child_match(tree, mapel_uids(i), 'MetaData'), filename);
@@ -527,7 +531,7 @@ function map = cifti_parse_labels(tree, map_uid, filename)
     if map.length == 0
         myerror('empty labels mapping', filename);
     end
-    map.maps = struct('name', cell(map.length, 1), 'metadata', cell(map.length, 1), 'table', cell(map.length, 1));
+    map.maps = struct('name', cell(1, map.length), 'metadata', cell(1, map.length), 'table', cell(1, map.length));
     for i = 1:map.length
         thismap = struct();
         thismap.metadata = cifti_parse_metadata(tree, child_match(tree, mapel_uids(i), 'MetaData'), filename);
@@ -542,7 +546,7 @@ function map = cifti_parse_labels(tree, map_uid, filename)
         end
         label_uids = child_match(tree, table_uid, 'Label');
         numlabels = length(label_uids);
-        thismap.table = struct('name', cell(numlabels, 1), 'key', cell(numlabels, 1), 'rgba', cell(numlabels, 1));
+        thismap.table = struct('name', cell(1, numlabels), 'key', cell(1, numlabels), 'rgba', cell(1, numlabels));
         for j = 1:numlabels
             thislabel = struct();
             thislabel.name = mygettext(tree, label_uids(j));

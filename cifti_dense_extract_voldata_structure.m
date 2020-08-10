@@ -6,6 +6,7 @@ function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_structure(ci
     %
     %   The cropped argument is optional and defaults to false, returning a volume with
     %   the full original dimensions.
+    %
     %   The dimension argument is optional except for dconn files (generally, use 2 for dconn).
     %   The cifti object must have exactly 2 dimensions.
     if length(cifti.diminfo) < 2
@@ -33,22 +34,23 @@ function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_structure(ci
     end
     otherdim = 3 - dimension;
     otherlength = size(cifti.cdata, otherdim);
-    [voxlist1, ciftilist, voldims, outsform1] = cifti_dense_get_vol_structure_map(cifti.diminfo{dimension}, structure, cropped);
-    assert(length(voldims) == 3);
-    indlist = cifti_vox2ind(voldims, voxlist1);
-    outroi = false(voldims);
+    volinfo = cifti_dense_get_vol_structure_map(cifti.diminfo{dimension}, structure, cropped);
+    outsform1 = volinfo.volsform1;
+    assert(length(volinfo.voldims) == 3);
+    indlist = cifti_vox2ind(volinfo.voldims, volinfo.voxlist1);
+    outroi = false(volinfo.voldims);
     outroi(indlist) = true;
-    outdata = zeros([voldims otherlength], 'single');
+    outdata = zeros([volinfo.voldims otherlength], 'single');
     if otherlength == 1 %don't loop if we don't need to
-        outdata(indlist) = cifti.cdata(ciftilist);
+        outdata(indlist) = cifti.cdata(volinfo.ciftilist);
     else
         tempframe = zeros(voldims, 'single');
         %need a dimension after the ind2sub result, so loop
         for i = 1:otherlength
             if dimension == 1
-                tempframe(indlist) = cifti.cdata(ciftilist, i);
+                tempframe(indlist) = cifti.cdata(volinfo.ciftilist, i);
             else
-                tempframe(indlist) = cifti.cdata(i, ciftilist);
+                tempframe(indlist) = cifti.cdata(i, volinfo.ciftilist);
             end
             outdata(:, :, :, i) = tempframe;
         end

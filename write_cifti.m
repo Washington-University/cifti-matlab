@@ -53,7 +53,7 @@ function write_cifti(cifti, filename, varargin)
                 newprov = ['written from function ' stack(options.stacklevel).name ' in file ' stack(options.stacklevel).file];
             end
             prov = cifti_metadata_get(cifti.metadata, 'Provenance');
-            cifti.metadata = struct('key', {'Provenance'; 'ProgramProvenance'}, 'value', {newprov; ['write_cifti.m ' libversion]});
+            cifti.metadata = struct('key', {'Provenance', 'ProgramProvenance'}, 'value', {newprov, ['write_cifti.m ' libversion]});
             if ~isempty(prov)
                 cifti.metadata = cifti_metadata_set(cifti.metadata, 'ParentProvenance', prov);
             end
@@ -164,7 +164,7 @@ end
 
 function output = argtobool(input, argname)
     switch input
-        case {0, false, '', '0', 'no', 'false', ''} %empty string defaults to false
+        case {0, false, '', '0', 'no', 'false'} %empty string defaults to false
             output = false;
         case {1, true, '1', 'yes', 'true'}
             output = true;

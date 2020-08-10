@@ -32,8 +32,8 @@ function cifti = cifti_dense_replace_voldata_structure(cifti, data, structure, c
     end
     otherdim = 3 - dimension;
     otherlength = size(cifti.cdata, otherdim);
-    [voxlist1, ciftilist, voldims, ~] = cifti_dense_get_vol_structure_map(cifti.diminfo{dimension}, structure, cropped);
-    indlist = cifti_vox2ind(voldims, voxlist1);
+    volinfo = cifti_dense_get_vol_structure_map(cifti.diminfo{dimension}, structure, cropped);
+    indlist = cifti_vox2ind(volinfo.voldims, volinfo.voxlist1);
     datadims = size(data);
     if length(datadims) < 4
         if otherlength ~= 1 || length(datadims) < 3
@@ -41,22 +41,22 @@ function cifti = cifti_dense_replace_voldata_structure(cifti, data, structure, c
         end
         datadims = [datadims 1];
     end
-    if datadims(1:3) ~= voldims
+    if datadims(1:3) ~= volinfo.voldims
         error('input data has the wrong volume dimensions, check the "cropped" argument');
     end
     if datadims(4) ~= otherlength
         error('input data has the wrong number of frames');
     end
     if otherlength == 1 %don't loop if we don't need to
-        cifti.cdata(ciftilist) = data(indlist);
+        cifti.cdata(volinfo.ciftilist) = data(indlist);
     else
         %have a dimension that goes after the ind2sub result, so loop
         for i = 1:otherlength
             tempframe = data(:, :, :, i);
             if dimension == 1
-                cifti.cdata(ciftilist, i) = tempframe(indlist);
+                cifti.cdata(volinfo.ciftilist, i) = tempframe(indlist);
             else
-                cifti.cdata(i, ciftilist) = tempframe(indlist);
+                cifti.cdata(i, volinfo.ciftilist) = tempframe(indlist);
             end
         end
     end

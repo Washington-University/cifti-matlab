@@ -15,5 +15,5 @@ function metadata = cifti_metadata_set(metadata, key, value)
         end
     end
     %not found, append it
-    metadata = [metadata; struct('key', key, 'value', value)];
+    metadata = [metadata struct('key', key, 'value', value)];
 end

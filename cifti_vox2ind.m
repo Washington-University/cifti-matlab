@@ -7,11 +7,11 @@ function indices = cifti_vox2ind(dims, voxlist1)
     %   this function is equivalent to:
     %
     %   >> sub2ind(dims, voxlist1(:, 1), voxlist1(:, 2), voxlist1(:, 3));
-    if size(voxlist1, 2) ~= 3
+    if size(voxlist1, 1) ~= 3
         error('voxlist is the wrong shape, it needs to be N x 3');
     end
     if length(dims) ~= 3
         error('dims must be a vector of length 3');
     end
-    indices = sub2ind(dims, voxlist1(:, 1), voxlist1(:, 2), voxlist1(:, 3));
+    indices = sub2ind(dims, voxlist1(1, :), voxlist1(2, :), voxlist1(3, :));
 end

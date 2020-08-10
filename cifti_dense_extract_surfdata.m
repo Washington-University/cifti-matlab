@@ -10,7 +10,7 @@ function [outdata, outroi] = cifti_dense_extract_surfdata(cifti, structure, dime
         error('cifti objects must have 2 or 3 dimensions');
     end
     if length(cifti.diminfo) > 2
-        error('this function only operates on 2D cifti, use cifti_dense_get_surface_mapping instead');
+        error('this function only operates on 2D cifti, use cifti_dense_get_surf_map instead');
     end
     if nargin < 3
         dimension = [];
@@ -27,13 +27,13 @@ function [outdata, outroi] = cifti_dense_extract_surfdata(cifti, structure, dime
         end
     end
     otherdim = 3 - dimension;
-    [vertlist, ciftilist, numverts] = cifti_dense_get_surf_map(cifti.diminfo{dimension}, structure);
-    outroi = false(numverts, 1);
-    outroi(vertlist) = true;
-    outdata = zeros(numverts, size(cifti.cdata, otherdim), 'single');
+    surfinfo = cifti_dense_get_surf_map(cifti.diminfo{dimension}, structure);
+    outroi = false(surfinfo.numverts, 1);
+    outroi(surfinfo.vertlist1) = true;
+    outdata = zeros(surfinfo.numverts, size(cifti.cdata, otherdim), 'single');
     if dimension == 1
-        outdata(vertlist, :) = cifti.cdata(ciftilist, :);
+        outdata(surfinfo.vertlist1, :) = cifti.cdata(surfinfo.ciftilist, :);
     else
-        outdata(vertlist, :) = cifti.cdata(:, ciftilist)';
+        outdata(surfinfo.vertlist1, :) = cifti.cdata(:, surfinfo.ciftilist)';
     end
 end

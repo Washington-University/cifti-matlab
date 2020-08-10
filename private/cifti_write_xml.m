@@ -81,17 +81,17 @@ function tree = cifti_write_dense(map, tree, map_uid)
                 [tree, vert_uid] = add(tree, model_uid, 'element', 'VertexIndices');
                 tree = add(tree, vert_uid, 'chardata', matrix2str(model{1}.vertlist(:)')); %NOTE: 0-based vertex indices
             case 'vox'
-                if size(model{1}.voxlist, 2) == model{1}.count && size(model{1}.voxlist, 1) == 3
+                if size(model{1}.voxlist, 1) == model{1}.count && size(model{1}.voxlist, 2) == 3
                     warning('model voxel list appears to be transposed');
                     model{1}.voxlist = model{1}.voxlist'; %#ok<FXSET>
                 end
-                if size(model{1}.voxlist, 1) ~= model{1}.count
+                if size(model{1}.voxlist, 2) ~= model{1}.count
                     error('model voxel list does not match count');
                 end
-                if size(model{1}.voxlist, 2) ~= 3
+                if size(model{1}.voxlist, 1) ~= 3
                     error('model voxel list does not contain 3 indices per voxel');
                 end
-                if any(model{1}.voxlist < 0 | model{1}.voxlist >= repmat(map.vol.dims, model{1}.count, 1))
+                if any(model{1}.voxlist < 0 | model{1}.voxlist >= repmat(map.vol.dims', 1, model{1}.count))
                     error('invalid voxlist content in cifti struct');
                 end
                 tree = attributes(tree, 'add', model_uid, 'ModelType', 'CIFTI_MODEL_TYPE_VOXELS');
@@ -205,14 +205,14 @@ function tree = cifti_write_parcels(map, tree, map_uid)
         [tree, parcel_uid] = add(tree, map_uid, 'element', 'Parcel');
         tree = attributes(tree, 'add', parcel_uid, 'Name', map.parcels(i).name);
         if ~isempty(map.parcels(i).voxlist)
-            if size(map.parcels(i).voxlist, 2) ~= 3 && size(map.parcels(i).voxlist, 1) == 3
+            if size(map.parcels(i).voxlist, 1) ~= 3 && size(map.parcels(i).voxlist, 2) == 3
                 warning('parcel voxlist seems transposed in cifti struct');
                 map.parcels(i).voxlist = map.parcels(i).voxlist';
             end
-            if size(map.parcels(i).voxlist, 2) ~= 3
+            if size(map.parcels(i).voxlist, 1) ~= 3
                 error('malformed voxlist in cifti struct');
             end
-            if any(map.parcels(i).voxlist < 0 | map.parcels(i).voxlist >= repmat(map.vol.dims, size(map.parcels(i).voxlist, 1), 1))
+            if any(map.parcels(i).voxlist < 0 | map.parcels(i).voxlist >= repmat(map.vol.dims', 1, size(map.parcels(i).voxlist, 2)))
                 error('invalid voxlist content in cifti struct');
             end
             [tree, vox_uid] = add(tree, parcel_uid, 'element', 'VoxelIndicesIJK');

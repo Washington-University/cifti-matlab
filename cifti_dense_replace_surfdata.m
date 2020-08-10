@@ -8,7 +8,7 @@ function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
         error('cifti objects must have 2 or 3 dimensions');
     end
     if length(cifti.diminfo) > 2
-        error('this function only operates on 2D cifti, use cifti_dense_get_surface_mapping instead');
+        error('this function only operates on 2D cifti, use cifti_dense_get_surf_map instead');
     end
     if nargin < 4
         dimension = [];
@@ -25,9 +25,9 @@ function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
         end
     end
     otherdim = 3 - dimension;
-    [vertlist, ciftilist, numverts] = cifti_dense_get_surf_map(cifti.diminfo{dimension}, structure);
-    if size(data, 1) ~= numverts
-        if size(data, 2) == numverts && size(data, 1) == size(cifti.cdata, otherdim)
+    surfinfo = cifti_dense_get_surf_map(cifti.diminfo{dimension}, structure);
+    if size(data, 1) ~= surfinfo.numverts
+        if size(data, 2) == surfinfo.numverts && size(data, 1) == size(cifti.cdata, otherdim)
             warning('input data is transposed, this could cause an undetected error when run on different data'); %accept transposed, but warn
             data = data';
         else
@@ -38,8 +38,8 @@ function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
         error('input data has the wrong number of maps');
     end
     if dimension == 1
-        cifti.cdata(ciftilist, :) = data(vertlist, :);
+        cifti.cdata(surfinfo.ciftilist, :) = data(surfinfo.vertlist1, :);
     else
-        cifti.cdata(:, ciftilist) = data(vertlist, :)';
+        cifti.cdata(:, surfinfo.ciftilist) = data(surfinfo.vertlist1, :)';
     end
 end

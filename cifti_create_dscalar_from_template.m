@@ -18,7 +18,7 @@ function cifti = cifti_create_dscalar_from_template(ciftitemplate, data, varargi
         options.dimension = [];
         for i = 1:length(ciftitemplate.diminfo)
             if strcmp(ciftitemplate.diminfo{i}.type, 'dense')
-                options.dimension = [options.dimension i]; %#ok<AGROW>
+                options.dimension = [options.dimension i];
             end
         end
         if isempty(options.dimension)
