@@ -1,5 +1,5 @@
-function [surflist, vollist] = cifti_dense_get_structures(diminfo)
-    %function [surflist, vollist] = cifti_dense_get_structures(diminfo)
+function [surflist, vollist] = cifti_diminfo_dense_get_structures(diminfo)
+    %function [surflist, vollist] = cifti_diminfo_dense_get_structures(diminfo)
     %   Get the names of all the structures used in the dense mapping.
     %
     %   The diminfo argument should usually be "cifti.diminfo{1}".

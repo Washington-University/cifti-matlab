@@ -1,5 +1,5 @@
-function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
-    %function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
+function cifti = cifti_file_dense_replace_surface_data(cifti, data, structure, dimension)
+    %function cifti = cifti_file_dense_replace_surface_data(cifti, data, structure, dimension)
     %   Replace the data for one cifti surface structure, taking a full-surface array as input.
     %
     %   The dimension argument is optional except for dconn files.
@@ -10,6 +10,7 @@ function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
     if length(cifti.diminfo) > 2
         error('this function only operates on 2D cifti, use cifti_dense_get_surf_map instead');
     end
+    sanity_check_cdata(cifti);
     if nargin < 4
         dimension = [];
         for i = 1:2
@@ -25,7 +26,7 @@ function cifti = cifti_dense_replace_surfdata(cifti, data, structure, dimension)
         end
     end
     otherdim = 3 - dimension;
-    surfinfo = cifti_dense_get_surf_map(cifti.diminfo{dimension}, structure);
+    surfinfo = cifti_diminfo_dense_get_surface_info(cifti.diminfo{dimension}, structure);
     if size(data, 1) ~= surfinfo.numverts
         if size(data, 2) == surfinfo.numverts && size(data, 1) == size(cifti.cdata, otherdim)
             warning('input data is transposed, this could cause an undetected error when run on different data'); %accept transposed, but warn

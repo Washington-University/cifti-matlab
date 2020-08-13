@@ -1,4 +1,5 @@
 function outlength = cifti_diminfo_length(diminfo)
+    %recompute length from diminfo contents, in case .length is wrong - maybe should be private?
     switch diminfo.type
         case 'dense'
             modelends = zeros(length(diminfo.models), 1);

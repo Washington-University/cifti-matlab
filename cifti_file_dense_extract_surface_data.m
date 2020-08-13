@@ -1,5 +1,5 @@
-function [outdata, outroi] = cifti_dense_extract_surfdata(cifti, structure, dimension)
-    %function [outdata, outroi] = cifti_dense_extract_surfdata(cifti, structure, dimension)
+function [outdata, outroi] = cifti_file_dense_extract_surface_data(cifti, structure, dimension)
+    %function [outdata, outroi] = cifti_file_dense_extract_surface_data(cifti, structure, dimension)
     %   Extract the data for one cifti surface structure, expanding it to the full number of vertices.
     %   Vertices without data are given a value of 0, and outroi is a logical that is only
     %   true for vertices that have data.
@@ -10,8 +10,9 @@ function [outdata, outroi] = cifti_dense_extract_surfdata(cifti, structure, dime
         error('cifti objects must have 2 or 3 dimensions');
     end
     if length(cifti.diminfo) > 2
-        error('this function only operates on 2D cifti, use cifti_dense_get_surf_map instead');
+        error('this function only operates on 2D cifti, use cifti_diminfo_dense_get_surface_info instead');
     end
+    sanity_check_cdata(cifti);
     if nargin < 3
         dimension = [];
         for i = 1:2
@@ -27,7 +28,7 @@ function [outdata, outroi] = cifti_dense_extract_surfdata(cifti, structure, dime
         end
     end
     otherdim = 3 - dimension;
-    surfinfo = cifti_dense_get_surf_map(cifti.diminfo{dimension}, structure);
+    surfinfo = cifti_diminfo_dense_get_surface_info(cifti.diminfo{dimension}, structure);
     outroi = false(surfinfo.numverts, 1);
     outroi(surfinfo.vertlist1) = true;
     outdata = zeros(surfinfo.numverts, size(cifti.cdata, otherdim), 'single');

@@ -1,5 +1,5 @@
-function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_all(cifti, cropped, dimension)
-    %function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_all(cifti, cropped, dimension)
+function [outdata, outsform1, outroi] = cifti_file_dense_extract_volume_all_data(cifti, cropped, dimension)
+    %function [outdata, outsform1, outroi] = cifti_file_dense_extract_volume_all_data(cifti, cropped, dimension)
     %   Extract the data for all cifti volume structures, expanding it to volume frames.
     %   Voxels without data are given a value of zero, and outroi is a logical that is only
     %   true for voxels that have data.
@@ -13,8 +13,9 @@ function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_all(cifti, c
         error('cifti objects must have 2 or 3 dimensions');
     end
     if length(cifti.diminfo) > 2
-        error('this function only operates on 2D cifti, use cifti_dense_get_surface_mapping instead');
+        error('this function only operates on 2D cifti, use cifti_diminfo_dense_get_volume_all_info instead');
     end
+    sanity_check_cdata(cifti);
     if nargin < 2
         cropped = false;
     end
@@ -34,7 +35,7 @@ function [outdata, outsform1, outroi] = cifti_dense_extract_voldata_all(cifti, c
     end
     otherdim = 3 - dimension;
     otherlength = size(cifti.cdata, otherdim);
-    volinfo = cifti_dense_get_vol_all_map(cifti.diminfo{dimension}, cropped);
+    volinfo = cifti_diminfo_dense_get_volume_all_info(cifti.diminfo{dimension}, cropped);
     outsform1 = volinfo.volsform1;
     assert(length(volinfo.voldims) == 3);
     indlist = cifti_vox2ind(volinfo.voldims, volinfo.voxlist1);

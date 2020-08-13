@@ -1,5 +1,5 @@
-function cifti = cifti_create_pconn_from_template(ciftitemplate, data, varargin)
-    %function cifti = cifti_create_pconn_from_template(ciftitemplate, data, ...)
+function cifti = cifti_file_create_pconn_from_template(ciftitemplate, data, varargin)
+    %function cifti = cifti_file_create_pconn_from_template(ciftitemplate, data, ...)
     %   Create a square pconn from any parcels file and a square data matrix.
     %   Non-square pconns must be made manually by setting cifti.diminfo and cifti.cdata.
     %
@@ -17,7 +17,7 @@ function cifti = cifti_create_pconn_from_template(ciftitemplate, data, varargin)
         options.dimension = [];
         for i = 1:length(ciftitemplate.diminfo)
             if strcmp(ciftitemplate.diminfo{i}.type, 'parcels')
-                options.dimension = [options.dimension i]; %#ok<AGROW>
+                options.dimension = [options.dimension i];
             end
         end
         if isempty(options.dimension)

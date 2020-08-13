@@ -1,5 +1,5 @@
-function cifti = cifti_dense_replace_voldata_all(cifti, data, cropped, dimension)
-    %function cifti = cifti_dense_replace_voldata_all(cifti, data, cropped, dimension)
+function cifti = cifti_file_dense_replace_volume_all_data(cifti, data, cropped, dimension)
+    %function cifti = cifti_file_dense_replace_volume_all_data(cifti, data, cropped, dimension)
     %   Replace the data in all cifti volume structures, taking a 4D array as input.
     %   For a single-map cifti, the input can be 3D instead.
     %
@@ -11,8 +11,9 @@ function cifti = cifti_dense_replace_voldata_all(cifti, data, cropped, dimension
         error('cifti objects must have 2 or 3 dimensions');
     end
     if length(cifti.diminfo) > 2
-        error('this function only operates on 2D cifti, use cifti_dense_get_surface_mapping instead');
+        error('this function only operates on 2D cifti, use cifti_diminfo_dense_get_volume_all_info instead');
     end
+    sanity_check_cdata(cifti);
     if nargin < 3
         cropped = false;
     end
@@ -32,7 +33,7 @@ function cifti = cifti_dense_replace_voldata_all(cifti, data, cropped, dimension
     end
     otherdim = 3 - dimension;
     otherlength = size(cifti.cdata, otherdim);
-    volinfo = cifti_dense_get_vol_all_map(cifti.diminfo{dimension}, cropped);
+    volinfo = cifti_diminfo_dense_get_volume_all_info(cifti.diminfo{dimension}, cropped);
     indlist = cifti_vox2ind(volinfo.voldims, volinfo.voxlist1);
     datadims = size(data);
     if length(datadims) < 4

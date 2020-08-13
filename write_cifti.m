@@ -29,21 +29,12 @@ function write_cifti(cifti, filename, varargin)
     if options.keepmetadata && options.disableprovenance
         warning('both "keepmetadata" and "disableprovenance" are true, ignoring "disableprovenance"');
     end
-    if length(cifti.diminfo) < 2 || length(cifti.diminfo) > 3
-        error('cifti struct must have 2 or 3 maps');
+    for i = 1:length(cifti.diminfo)
+        cifti.diminfo{i}.length = cifti_diminfo_length(cifti.diminfo{i}); %set diminfo .length from diminfo contents so it is synchronized
     end
-    if length(size(cifti.cdata)) ~= length(cifti.diminfo)
-        error('number of data dimensions does not match cifti struct');
-    end
+    sanity_check_cdata(cifti);
     dims_m = size(cifti.cdata);
     dims_c = dims_m([2 1 3:length(dims_m)]); %ciftiopen convention, first matlab index is down
-    dims_xml = zeros(1, length(cifti.diminfo));
-    for i = 1:length(cifti.diminfo)
-        dims_xml(i) = cifti_diminfo_length(cifti.diminfo{i});
-    end
-    if any(dims_m ~= dims_xml)
-        error('dimension length mismatch between data and cifti struct');
-    end
     if ~options.keepmetadata
         if ~options.disableprovenance
             stack = dbstack;
