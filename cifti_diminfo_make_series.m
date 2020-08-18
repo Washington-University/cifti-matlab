@@ -3,13 +3,13 @@ function outmap = cifti_diminfo_make_series(nummaps, start, step, unit)
     %   Create a new series diminfo object.
     %
     %   Only the nummaps argument is required.
-    if nargin < 2
+    if nargin < 2 || isempty(start)
         start = 0;
     end
-    if nargin < 3
+    if nargin < 3 || isempty(step)
         step = 1;
     end
-    if nargin < 4
+    if nargin < 4 || isempty(unit)
         unit = 'SECOND';
     end
     if ~isscalar(start) || ~isnumeric(start)
