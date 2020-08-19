@@ -71,7 +71,12 @@ newleftdata = 1 - leftdata;
 newcifti = cifti_file_dense_replace_surface_data(mycifti, newleftdata, 'CORTEX_LEFT');
 ```
 
+The `dense` part of some function names refers to only being applicable to "dense" files
+or diminfo (in cifti xml terms, a "brain models" mapping), such as dtseries, dscalar,
+dlabel, or dconn.  There are more `dense` helpers mainly because there is a more common
+need to make use of the information in a dense diminfo than most other diminfo types.
+
 The `cifti_diminfo_*` helpers are lower-level and require more understanding of the
-internals of the cifti format, so you should generally look at the `cifti_file_*`
-helpers first.
+details of the cifti format, and often require writing more code to use them, so you
+should generally look at the `cifti_file_*` helpers first.
 
