@@ -30,7 +30,7 @@ function outinfo = cifti_diminfo_dense_get_volume_all_info(diminfo, cropped)
     outinfo.volsform1 = diminfo.vol.sform;
     outinfo.volsform1(:, 4) = outinfo.volsform1 * [-1 -1 -1 1]'; %set the offset to the coordinates of the -1 -1 -1 0-based voxel, so that 1-based voxel indices give the correct coordinates
     havevolstructure = false;
-    %models from read_cifti should already be sorted by cifti index
+    %models from cifti_read should already be sorted by cifti index
     for i = 1:length(diminfo.models)
         if strcmp(diminfo.models{i}.type, 'vox')
             havevolstructure = true;

@@ -1,13 +1,13 @@
-function outstruct = read_cifti(filename, varargin)
-    %function outstruct = READ_CIFTI(filename, ...)
+function outstruct = cifti_read(filename, varargin)
+    %function outstruct = cifti_read(filename, ...)
     %   Read a cifti file.
     %   If wb_command is not on your PATH and you need to read cifti-1
     %   files, include the extra arguments ", 'wbcmd', '<wb_command with full path>'".
     %
-    %   >> cifti = read_cifti('91282_Greyordinates.dscalar.nii');
+    %   >> cifti = cifti_read('91282_Greyordinates.dscalar.nii');
     %   >> cifti.cdata = outdata;
     %   >> cifti.diminfo{2} = cifti_diminfo_make_scalars(size(outdata, 2));
-    %   >> write_cifti(cifti, 'ciftiout.dscalar.nii');
+    %   >> cifti_write(cifti, 'ciftiout.dscalar.nii');
     options = myargparse(varargin, {'wbcmd'});
     if isempty(options.wbcmd)
         options.wbcmd = 'wb_command';
@@ -29,14 +29,14 @@ function outstruct = read_cifti(filename, varargin)
     catch excinfo
         if strcmp(excinfo.identifier, 'cifti:version')
             if mod(length(varargin), 2) == 1 && strcmp(varargin{end}, 'recursed') %guard against infinite recursion
-                error('read_cifti internal error, cifti version conversion problem');
+                error('internal error, cifti version conversion problem');
             end
             warning(['cifti file "' filename '" appears to not be version 2, converting using wb_command...']);
             [~, name, ext] = fileparts(filename);
             tmpfile = [tempname '.' name ext];
             cleanupObj = onCleanup(@()mydelete(tmpfile)); %make previous obj close our fid, make new cleanup obj to delete temp file
             my_system([options.wbcmd ' -file-convert -cifti-version-convert ' filename ' 2 ' tmpfile]);
-            outstruct = read_cifti(tmpfile, [varargin, {'recursed'}]); %guard against infinite recursion
+            outstruct = cifti_read(tmpfile, [varargin, {'recursed'}]); %guard against infinite recursion
             return;
         end
         rethrow(excinfo);

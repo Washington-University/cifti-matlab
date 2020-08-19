@@ -1,12 +1,12 @@
 function ciftisave(cifti, filename, varargin)
     %function ciftisave(cifti, filename, ...)
-    %   Compatibility wrapper for write_cifti.
+    %   Compatibility wrapper for cifti_write.
     if ~isfield(cifti, 'diminfo')
         error('cifti structure has no diminfo field, maybe use the old ciftisave code instead?');
     end
     tic;
     try
-        write_cifti(cifti, filename, 'stacklevel', '3');
+        cifti_write(cifti, filename, 'stacklevel', '3');
     catch e
         if length(size(cifti.cdata)) ~= length(cifti.diminfo)
             rethrow(e); %ciftisavereset can't handle that

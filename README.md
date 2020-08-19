@@ -5,7 +5,7 @@ This code is intended to be fully compatible with the CIFTI-2 format,
 without external dependencies (except that CIFTI-1 files require
 wb_command for conversion), returning a structure that exposes the
 information contained in the CIFTI-2 XML with minimal translation, as well
-as the data matrix with no added padding.  The read_cifti function is
+as the data matrix with no added padding.  The cifti_read function is
 the intended starting point, ciftiopen and similar are compatibility
 wrappers so that the library can be used in older code.
 
@@ -26,33 +26,33 @@ change.
 All exposed functions have usage information available through the `help` command:
 
 ```
->> help read_cifti
- function outstruct = read_cifti(filename, ...)
+>> help cifti_read
+ function outstruct = cifti_read(filename, ...)
     Read a cifti file.
 ...
 ```
 
-The simplest practical usage is to load a cifti file with `read_cifti`, take
+The simplest practical usage is to load a cifti file with `cifti_read`, take
 its data from the `.cdata` field, modify it, store it back into the `.cdata` field,
-and write it back out to a new file with `write_cifti`:
+and write it back out to a new file with `cifti_write`:
 
 ```octave
-mycifti = read_cifti('something.dscalar.nii');
+mycifti = cifti_read('something.dscalar.nii');
 mycifti.cdata = sqrt(mycifti.cdata);
-write_cifti(mycifti, 'sqrt.dscalar.nii');
+cifti_write(mycifti, 'sqrt.dscalar.nii');
 ```
 
 The `ciftiopen`, `ciftisave`, and `ciftisavereset` functions provide backward
 compatibility with a previous cifti library (option B of [HCP FAQ 2](https://wiki.humanconnectome.org/display/PublicData/HCP+Users+FAQ#HCPUsersFAQ-2.HowdoyougetCIFTIfilesintoMATLAB?)),
-and you can also use this `ciftisavereset` function even if you use `read_cifti`.
+and you can also use this `ciftisavereset` function even if you use `cifti_read`.
 An alternative way to do the equivalent of `ciftisavereset` is to use the
 `cifti_file_create_from_template` helper function (which has an option to set
 the names of the maps):
 
 ```octave
-mycifti = read_cifti('something.dscalar.nii');
+mycifti = cifti_read('something.dscalar.nii');
 
-write_cifti(cifti_file_create_from_template(mycifti, mycifti.cdata(:, 1), 'dscalar', 'namelist', {'map #1'}), 'firstmap.dscalar.nii');
+cifti_write(cifti_file_create_from_template(mycifti, mycifti.cdata(:, 1), 'dscalar', 'namelist', {'map #1'}), 'firstmap.dscalar.nii');
 %ciftisave equivalent (keeping mycifti unmodified):
 newcifti = mycifti;
 newcifti.cdata = mycifti.cdata(:, 1);
@@ -65,7 +65,7 @@ common cifti files, including extracting the data for one cortical surface,
 doing some computation on it, and replacing the surface data with the new values:
 
 ```octave
-mycifti = read_cifti('something.dscalar.nii');
+mycifti = cifti_read('something.dscalar.nii');
 leftdata = cifti_file_dense_extract_surface_data(mycifti, 'CORTEX_LEFT');
 newleftdata = 1 - leftdata;
 newcifti = cifti_file_dense_replace_surface_data(mycifti, newleftdata, 'CORTEX_LEFT');
@@ -74,3 +74,4 @@ newcifti = cifti_file_dense_replace_surface_data(mycifti, newleftdata, 'CORTEX_L
 The `cifti_diminfo_*` helpers are lower-level and require more understanding of the
 internals of the cifti format, so you should generally look at the `cifti_file_*`
 helpers first.
+

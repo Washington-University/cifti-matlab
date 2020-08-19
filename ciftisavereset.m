@@ -1,6 +1,6 @@
 function ciftisavereset(cifti, filename, varargin)
     %function ciftisavereset(cifti, filename, ...)
-    %   Compatibility wrapper for write_cifti.
+    %   Compatibility wrapper for cifti_write.
     periods = find(filename == '.', 2, 'last');
     if length(periods) < 2
         warning('ciftisavereset wrapper called with non-cifti file extension');
@@ -23,6 +23,6 @@ function ciftisavereset(cifti, filename, varargin)
         end
     end
     tic;
-    write_cifti(cifti, filename, 'stacklevel', '3');
+    cifti_write(cifti, filename, 'stacklevel', '3');
     toc; %for familiarity, have them output a timing?  the original ciftisavereset printed 2 timings...
 end

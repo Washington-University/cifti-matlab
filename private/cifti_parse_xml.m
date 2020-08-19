@@ -15,7 +15,7 @@ function outstruct = cifti_parse_xml(bytes, filename)
                     case '2'
                         parse_vers = 2; %#ok<NASGU>
                     otherwise
-                        error('cifti:version', ['unsupported cifti version "' attr{1}.val '"'], filename); %the 'cifti:version' is used to let read_cifti know to use wb_command to convert
+                        error('cifti:version', ['unsupported cifti version "' attr{1}.val '"'], filename); %the 'cifti:version' is used to let cifti_read know to use wb_command to convert
                 end
             otherwise
                 mywarn(['unrecognized CIFTI attribute "' attr{1}.key '"'], filename);

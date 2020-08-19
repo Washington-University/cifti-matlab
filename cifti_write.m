@@ -1,5 +1,5 @@
-function write_cifti(cifti, filename, varargin)
-    %function write_cifti(cifti, filename, option pairs...)
+function cifti_write(cifti, filename, varargin)
+    %function cifti_write(cifti, filename, option pairs...)
     %   Write a cifti file.
     %
     %   Specifying "..., 'keepmetadata', true" disables automatic provenance: if false
@@ -13,10 +13,10 @@ function write_cifti(cifti, filename, varargin)
     %
     %   Example usage:
     %
-    %   >> cifti = read_cifti('91282_Greyordinates.dscalar.nii');
+    %   >> cifti = cifti_read('91282_Greyordinates.dscalar.nii');
     %   >> cifti.cdata = outdata;
     %   >> cifti.diminfo{2} = cifti_diminfo_make_scalars(size(outdata, 2));
-    %   >> write_cifti(cifti, 'ciftiout.dscalar.nii');
+    %   >> cifti_write(cifti, 'ciftiout.dscalar.nii');
     libversion = 'alpha version';
     options = myargparse(varargin, {'stacklevel', 'disableprovenance', 'keepmetadata'}); %stacklevel is an implementation detail, don't add to help
     if isnan(str2double(options.stacklevel))
@@ -44,7 +44,7 @@ function write_cifti(cifti, filename, varargin)
                 newprov = ['written from function ' stack(options.stacklevel).name ' in file ' stack(options.stacklevel).file];
             end
             prov = cifti_metadata_get(cifti.metadata, 'Provenance');
-            cifti.metadata = struct('key', {'Provenance', 'ProgramProvenance'}, 'value', {newprov, ['write_cifti.m ' libversion]});
+            cifti.metadata = struct('key', {'Provenance', 'ProgramProvenance'}, 'value', {newprov, ['cifti_write.m ' libversion]});
             if ~isempty(prov)
                 cifti.metadata = cifti_metadata_set(cifti.metadata, 'ParentProvenance', prov);
             end
