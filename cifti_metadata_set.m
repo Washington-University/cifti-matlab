@@ -1,5 +1,5 @@
 function metadata = cifti_metadata_set(metadata, key, value)
-    %function metadata = cifti_metadata_set(metadata, key, value)
+    %function metadata = cifti_metadata_set(metadata, key, newvalue)
     %   Set the value for a specified metadata key.
     %
     %   >> cifti.metadata = cifti_metadata_set(cifti.metadata, 'Provenance', 'I made this');

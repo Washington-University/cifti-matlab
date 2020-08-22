@@ -1,5 +1,5 @@
 function cifti = cifti_file_dense_replace_volume_all_data(cifti, data, cropped, dimension)
-    %function cifti = cifti_file_dense_replace_volume_all_data(cifti, data, cropped, dimension)
+    %function cifti = cifti_file_dense_replace_volume_all_data(cifti, newdata, cropped, dimension)
     %   Replace the data in all cifti volume structures, taking a 4D array as input.
     %   For a single-map cifti, the input can be 3D instead.
     %

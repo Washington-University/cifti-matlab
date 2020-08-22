@@ -1,5 +1,5 @@
 function cifti = cifti_file_create_from_template(ciftitemplate, data, type, varargin)
-    %function cifti = cifti_file_create_from_template(ciftitemplate, data, type, ...)
+    %function cifti = cifti_file_create_from_template(ciftitemplate, newdata, type, ...)
     %   Create a new cifti struct using an existing cifti as a template for the dense or
     %   parcels dimension.
     %
@@ -39,7 +39,7 @@ function cifti = cifti_file_create_from_template(ciftitemplate, data, type, vara
             needtype = 'parcels';
             othertype = 'scalars';
         otherwise
-            error(['invalid cifti type requested: ' type]);
+            error('cifti:extension', ['invalid cifti type requested: ' type]); %tell write_from_template the filename was the problem
     end
     switch othertype
         case 'copy'

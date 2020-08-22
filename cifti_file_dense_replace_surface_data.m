@@ -1,5 +1,5 @@
 function cifti = cifti_file_dense_replace_surface_data(cifti, data, structure, dimension)
-    %function cifti = cifti_file_dense_replace_surface_data(cifti, data, structure, dimension)
+    %function cifti = cifti_file_dense_replace_surface_data(cifti, newdata, structure, dimension)
     %   Replace the data for one cifti surface structure, taking a full-surface array as input.
     %
     %   The dimension argument is optional except for dconn files.
