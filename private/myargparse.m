@@ -1,4 +1,8 @@
-function outstruct = myargparse(myvarargs, allowed)
+function [outstruct, unknowns] = myargparse(myvarargs, allowed, allow_unknown)
+    unknowns = {};
+    if nargin < 3
+        allow_unknown = false;
+    end
     for i = 1:length(allowed)
         outstruct.(allowed{i}) = '';
     end
@@ -6,7 +10,11 @@ function outstruct = myargparse(myvarargs, allowed)
         if isfield(outstruct, myvarargs{i})
             outstruct.(myvarargs{i}) = myvarargs{i + 1};
         else
-            error(['unknown optional parameter specified: "' myvarargs{i} '"']);
+            if allow_unknown
+                unknowns = {unknowns{:} myvarargs{i} myvarargs{i + 1}};
+            else
+                error(['unknown optional parameter specified: "' myvarargs{i} '"']);
+            end
         end
     end
 end

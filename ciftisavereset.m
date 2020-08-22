@@ -23,6 +23,6 @@ function ciftisavereset(cifti, filename, varargin)
         end
     end
     tic;
-    cifti_write(cifti, filename, 'stacklevel', '3');
+    cifti_write(cifti, filename, 'stacklevel', 3);
     toc; %for familiarity, have them output a timing?  the original ciftisavereset printed 2 timings...
 end

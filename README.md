@@ -43,25 +43,28 @@ cifti_write(mycifti, 'sqrt.dscalar.nii');
 ```
 
 The `ciftiopen`, `ciftisave`, and `ciftisavereset` functions provide backward
-compatibility with a previous cifti library (option B of [HCP FAQ 2](https://wiki.humanconnectome.org/display/PublicData/HCP+Users+FAQ#HCPUsersFAQ-2.HowdoyougetCIFTIfilesintoMATLAB?)),
+compatibility with a previous cifti library (option B of
+[HCP FAQ 2](https://wiki.humanconnectome.org/display/PublicData/HCP+Users+FAQ#HCPUsersFAQ-2.HowdoyougetCIFTIfilesintoMATLAB?)),
 and you can also use this `ciftisavereset` function even if you use `cifti_read`.
 An alternative way to do the equivalent of `ciftisavereset` is to use the
-`cifti_file_create_from_template` helper function (which has an option to set
-the names of the maps):
+`cifti_write_from_template` helper function (which also has options to set
+the names of the maps for dscalar, and similar for other cifti file types):
 
 ```octave
 mycifti = cifti_read('something.dscalar.nii');
 
-cifti_write(cifti_file_create_from_template(mycifti, mycifti.cdata(:, 1), 'dscalar', 'namelist', {'map #1'}), 'firstmap.dscalar.nii');
-%ciftisave equivalent (keeping mycifti unmodified):
+cifti_write_from_template(mycifti, mycifti.cdata(:, 1), 'firstmap.dscalar.nii', 'namelist', {'map #1'});
+%ciftisavereset equivalent (keeping 'mycifti' unmodified):
 newcifti = mycifti;
 newcifti.cdata = mycifti.cdata(:, 1);
 ciftisavereset(newcifti, 'firstmap.dscalar.nii');
 clear newcifti;
 ```
 
-The `cifti_file_*` helper functions should handle most cases of working with
-common cifti files, including extracting the data for one cortical surface,
+The `cifti_file_create_from_template` function can create a cifti struct without writing
+it to a file, with the same options as `cifti_write_from_template` to control the other
+diminfo.  The `cifti_write...` or `cifti_file...` functions should handle most cases of
+working with common cifti files, including extracting the data for one cortical surface,
 doing some computation on it, and replacing the surface data with the new values:
 
 ```octave
@@ -69,6 +72,7 @@ mycifti = cifti_read('something.dscalar.nii');
 leftdata = cifti_file_dense_extract_surface_data(mycifti, 'CORTEX_LEFT');
 newleftdata = 1 - leftdata;
 newcifti = cifti_file_dense_replace_surface_data(mycifti, newleftdata, 'CORTEX_LEFT');
+...
 ```
 
 The `dense` part of some function names refers to only being applicable to "dense" files
@@ -78,5 +82,5 @@ need to make use of the information in a dense diminfo than most other diminfo t
 
 The `cifti_diminfo_*` helpers are lower-level and require more understanding of the
 details of the cifti format, and often require writing more code to use them, so you
-should generally look at the `cifti_file_*` helpers first.
+should generally look at the `cifti_write...` and `cifti_file...` functions first.
 

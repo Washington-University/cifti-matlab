@@ -12,7 +12,7 @@ function sanity_check_cdata(cifti)
         error('cifti diminfo field is not a cell vector');
     end
     if length(cifti.diminfo) < 2 || length(cifti.diminfo) > 3
-        error('cifti-2 only supports 2 or 3 dimensions'); %or just a warning for > 3?
+        error('cifti-2 only supports 2 or 3 dimensions'); %cifti_write currently relies on this being an error
     end
     if length(size(cifti.cdata)) ~= length(cifti.diminfo)
         error('number of cdata dimensions does not match diminfo field');

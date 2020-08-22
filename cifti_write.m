@@ -19,10 +19,8 @@ function cifti_write(cifti, filename, varargin)
     %   >> cifti_write(cifti, 'ciftiout.dscalar.nii');
     libversion = 'alpha version';
     options = myargparse(varargin, {'stacklevel', 'disableprovenance', 'keepmetadata'}); %stacklevel is an implementation detail, don't add to help
-    if isnan(str2double(options.stacklevel))
+    if isempty(options.stacklevel) %stacklevel is so that so it doesn't get "ciftisave" all the time
         options.stacklevel = 2;
-    else
-        options.stacklevel = str2double(options.stacklevel); %so it doesn't get "ciftisave" all the time
     end
     options.keepmetadata = argtobool(options.keepmetadata, 'keepmetadata');
     options.disableprovenance = argtobool(options.disableprovenance, 'disableprovenance');
@@ -66,7 +64,48 @@ function cifti_write(cifti, filename, varargin)
     if(fseek(fid, header.vox_offset, 'bof') ~= 0)
         error(['failed to seek to start data writing in file ' filename]);
     end
-    fwrite_excepting(fid, permute(cifti.cdata, [2 1 3:length(size(cifti.cdata))]), 'float32');
+    %we need to swap the first 2 dims, and 'permute' effectively makes a copy of its input, so write large files in chunks instead
+    max_elems = 128 * 1024 * 1024 / 4; %assuming float32, use only 128MiB extra memory when writing (or the size of a row, if that manages to be larger)
+    if numel(cifti.cdata) <= max_elems
+        %file is small, use simple 'permute' writing code
+        fwrite_excepting(fid, permute(cifti.cdata, [2 1 3:length(size(cifti.cdata))]), 'float32');
+    else
+        max_rows = max(1, min(size(cifti.cdata, 1), floor(max_elems / size(cifti.cdata, 2))));
+        switch length(size(cifti.cdata))
+            case 2
+                %even out the passes to use about the same memory
+                num_passes = ceil(size(cifti.cdata, 1) / max_rows);
+                chunk_rows = ceil(size(cifti.cdata, 1) / num_passes);
+                for i = 1:chunk_rows:size(cifti.cdata, 1)
+                    fwrite_excepting(fid, cifti.cdata(i:min(size(cifti.cdata, 1), i + chunk_rows - 1), :)', 'float32');
+                end
+            case 3
+                %this is all untested
+                if max_rows < size(cifti.cdata, 1)
+                    num_passes = ceil(size(cifti.cdata, 1) / max_rows);
+                    chunk_rows = ceil(size(cifti.cdata, 1) / num_passes);
+                    %keep it simple, chunk each plane independently
+                    for j = 1:size(cifti.cdata, 3)
+                        for i = 1:chunk_rows:size(cifti.cdata, 1)
+                            fwrite_excepting(fid, cifti.cdata(i:min(size(cifti.cdata, 1), i + chunk_rows - 1), :, j)', 'float32');
+                        end
+                    end
+                else
+                    plane_elems = size(cifti.cdata, 1) * size(cifti.cdata, 2);
+                    max_planes = max(1, min(size(cifti.cdata, 3), floor(max_elems / plane_elems)));
+                    num_passes = ceil(size(cifti.cdata, 3) / max_planes);
+                    chunk_planes = ceil(size(cifti.cdata, 3) / num_passes);
+                    for j = 1:chunk_planes:size(cifti.cdata, 3)
+                        fwrite_excepting(fid, permute(cifti.cdata(:, :, j:min(size(cifti.cdata, 3), j + chunk_planes - 1)), [2 1 3]), 'float32');
+                    end
+                end
+            otherwise
+                %4D and beyond is not in the cifti-2 standard and is treated as an error in sanity_check_cdata
+                %but, if it ever is supported, warn and write it the memory-intensive way anyway
+                warning('memory-reduced cifti writing for 4 or more dimensions is not implemented');
+                fwrite_excepting(fid, permute(cifti.cdata, [2 1 3:length(size(cifti.cdata))]), 'float32');
+        end
+    end
 end
 
 function [code, string] = cifti_intent_code(cifti, filename)
