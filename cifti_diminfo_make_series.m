@@ -1,6 +1,6 @@
 function outmap = cifti_diminfo_make_series(nummaps, start, step, unit)
     %function outmap = cifti_diminfo_make_series(nummaps, start, step, unit)
-    %   Create a new series diminfo object.
+    %   Create a new series diminfo struct.
     %
     %   Only the nummaps argument is required.
     if nargin < 2 || isempty(start)

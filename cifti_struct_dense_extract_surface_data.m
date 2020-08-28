@@ -1,13 +1,13 @@
-function [outdata, outroi] = cifti_file_dense_extract_surface_data(cifti, structure, dimension)
-    %function [outdata, outroi] = cifti_file_dense_extract_surface_data(cifti, structure, dimension)
+function [outdata, outroi] = cifti_struct_dense_extract_surface_data(cifti, structure, dimension)
+    %function [outdata, outroi] = cifti_struct_dense_extract_surface_data(cifti, structure, dimension)
     %   Extract the data for one cifti surface structure, expanding it to the full number of vertices.
     %   Vertices without data are given a value of 0, and outroi is a logical that is only
     %   true for vertices that have data.
     %
     %   The dimension argument is optional except for dconn files (generally, use 2 for dconn).
-    %   The cifti object must have exactly 2 dimensions.
+    %   The cifti struct must have exactly 2 dimensions.
     if length(cifti.diminfo) < 2
-        error('cifti objects must have 2 or 3 dimensions');
+        error('cifti struct must have 2 dimensions');
     end
     if length(cifti.diminfo) > 2
         error('this function only operates on 2D cifti, use cifti_diminfo_dense_get_surface_info instead');
@@ -21,7 +21,7 @@ function [outdata, outroi] = cifti_file_dense_extract_surface_data(cifti, struct
             end
         end
         if isempty(dimension)
-            error('cifti object has no dense dimension');
+            error('cifti struct has no dense dimension');
         end
         if ~isscalar(dimension)
             error('dense by dense cifti (aka dconn) requires specifying the dimension argument');

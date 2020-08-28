@@ -1,11 +1,11 @@
-function cifti = cifti_file_dense_replace_surface_data(cifti, data, structure, dimension)
-    %function cifti = cifti_file_dense_replace_surface_data(cifti, newdata, structure, dimension)
+function cifti = cifti_struct_dense_replace_surface_data(cifti, data, structure, dimension)
+    %function cifti = cifti_struct_dense_replace_surface_data(cifti, newdata, structure, dimension)
     %   Replace the data for one cifti surface structure, taking a full-surface array as input.
     %
     %   The dimension argument is optional except for dconn files.
-    %   The cifti object must have exactly 2 dimensions.
+    %   The cifti struct must have exactly 2 dimensions.
     if length(cifti.diminfo) < 2
-        error('cifti objects must have 2 or 3 dimensions');
+        error('cifti struct must have 2 dimensions');
     end
     if length(cifti.diminfo) > 2
         error('this function only operates on 2D cifti, use cifti_dense_get_surf_map instead');
@@ -19,7 +19,7 @@ function cifti = cifti_file_dense_replace_surface_data(cifti, data, structure, d
             end
         end
         if isempty(dimension)
-            error('cifti object has no dense dimension');
+            error('cifti struct has no dense dimension');
         end
         if ~isscalar(dimension)
             error('dense by dense cifti (aka dconn) requires specifying the dimension argument');

@@ -1,6 +1,6 @@
 function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
     %function outmap = cifti_diminfo_make_scalars(nummaps, namelist, metadatalist)
-    %   Create a new scalars diminfo object.
+    %   Create a new scalars diminfo struct.
     %
     %   Only the nummaps argument is required.
     %   The namelist argument, if provided, may be a char vector if nummaps = 1,

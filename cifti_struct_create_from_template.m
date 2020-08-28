@@ -1,5 +1,5 @@
-function cifti = cifti_file_create_from_template(ciftitemplate, data, type, varargin)
-    %function cifti = cifti_file_create_from_template(ciftitemplate, newdata, type, ...)
+function cifti = cifti_struct_create_from_template(ciftitemplate, data, type, varargin)
+    %function cifti = cifti_struct_create_from_template(ciftitemplate, newdata, type, ...)
     %   Create a new cifti struct using an existing cifti as a template for the dense or
     %   parcels dimension.
     %

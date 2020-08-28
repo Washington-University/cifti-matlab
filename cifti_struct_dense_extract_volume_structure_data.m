@@ -1,6 +1,6 @@
-function [outdata, outsform1, outroi] = cifti_file_dense_extract_volume_all_data(cifti, cropped, dimension)
-    %function [outdata, outsform1, outroi] = cifti_file_dense_extract_volume_all_data(cifti, cropped, dimension)
-    %   Extract the data for all cifti volume structures, expanding it to volume frames.
+function [outdata, outsform1, outroi] = cifti_struct_dense_extract_volume_structure_data(cifti, structure, cropped, dimension)
+    %function [outdata, outsform1, outroi] = cifti_struct_dense_extract_volume_structure_data(cifti, structure, cropped, dimension)
+    %   Extract the data for one cifti volume structure, expanding it to volume frames.
     %   Voxels without data are given a value of zero, and outroi is a logical that is only
     %   true for voxels that have data.
     %
@@ -8,18 +8,18 @@ function [outdata, outsform1, outroi] = cifti_file_dense_extract_volume_all_data
     %   the full original dimensions.
     %
     %   The dimension argument is optional except for dconn files (generally, use 2 for dconn).
-    %   The cifti object must have exactly 2 dimensions.
+    %   The cifti struct must have exactly 2 dimensions.
     if length(cifti.diminfo) < 2
-        error('cifti objects must have 2 or 3 dimensions');
+        error('cifti struct must have 2 dimensions');
     end
     if length(cifti.diminfo) > 2
-        error('this function only operates on 2D cifti, use cifti_diminfo_dense_get_volume_all_info instead');
+        error('this function only operates on 2D cifti, use cifti_diminfo_dense_get_volume_structure_info instead');
     end
     sanity_check_cdata(cifti);
-    if nargin < 2
+    if nargin < 3
         cropped = false;
     end
-    if nargin < 3
+    if nargin < 4
         dimension = [];
         for i = 1:2
             if strcmp(cifti.diminfo{i}.type, 'dense')
@@ -27,7 +27,7 @@ function [outdata, outsform1, outroi] = cifti_file_dense_extract_volume_all_data
             end
         end
         if isempty(dimension)
-            error('cifti object has no dense dimension');
+            error('cifti struct has no dense dimension');
         end
         if ~isscalar(dimension)
             error('dense by dense cifti (aka dconn) requires specifying the dimension argument');
@@ -35,7 +35,7 @@ function [outdata, outsform1, outroi] = cifti_file_dense_extract_volume_all_data
     end
     otherdim = 3 - dimension;
     otherlength = size(cifti.cdata, otherdim);
-    volinfo = cifti_diminfo_dense_get_volume_all_info(cifti.diminfo{dimension}, cropped);
+    volinfo = cifti_diminfo_dense_get_volume_structure_info(cifti.diminfo{dimension}, structure, cropped);
     outsform1 = volinfo.volsform1;
     assert(length(volinfo.voldims) == 3);
     indlist = cifti_vox2ind(volinfo.voldims, volinfo.voxlist1);

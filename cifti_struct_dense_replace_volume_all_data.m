@@ -1,14 +1,14 @@
-function cifti = cifti_file_dense_replace_volume_all_data(cifti, data, cropped, dimension)
-    %function cifti = cifti_file_dense_replace_volume_all_data(cifti, newdata, cropped, dimension)
+function cifti = cifti_struct_dense_replace_volume_all_data(cifti, data, cropped, dimension)
+    %function cifti = cifti_struct_dense_replace_volume_all_data(cifti, newdata, cropped, dimension)
     %   Replace the data in all cifti volume structures, taking a 4D array as input.
     %   For a single-map cifti, the input can be 3D instead.
     %
     %   The cropped argument is optional and defaults to false, expecting a volume with
     %   the full original dimensions.
     %   The dimension argument is optional except for dconn files (generally, use 2 for dconn).
-    %   The cifti object must have exactly 2 dimensions.
+    %   The cifti struct must have exactly 2 dimensions.
     if length(cifti.diminfo) < 2
-        error('cifti objects must have 2 or 3 dimensions');
+        error('cifti struct must have 2 dimensions');
     end
     if length(cifti.diminfo) > 2
         error('this function only operates on 2D cifti, use cifti_diminfo_dense_get_volume_all_info instead');
@@ -25,7 +25,7 @@ function cifti = cifti_file_dense_replace_volume_all_data(cifti, data, cropped, 
             end
         end
         if isempty(dimension)
-            error('cifti object has no dense dimension');
+            error('cifti struct has no dense dimension');
         end
         if ~isscalar(dimension)
             error('dense by dense cifti (aka dconn) requires specifying the dimension argument');
