@@ -65,6 +65,7 @@ function cifti_write(cifti, filename, varargin)
         error(['failed to seek to start data writing in file ' filename]);
     end
     %we need to swap the first 2 dims, and 'permute' effectively makes a copy of its input, so write large files in chunks instead
+    %FIXME: if we allow setting nifti scale/intercept, that needs to be added to this code
     max_elems = 128 * 1024 * 1024 / 4; %assuming float32, use only 128MiB extra memory when writing (or the size of a row, if that manages to be larger)
     if numel(cifti.cdata) <= max_elems
         %file is small, use simple 'permute' writing code
@@ -80,17 +81,18 @@ function cifti_write(cifti, filename, varargin)
                     fwrite_excepting(fid, cifti.cdata(i:min(size(cifti.cdata, 1), i + chunk_rows - 1), :)', 'float32');
                 end
             case 3
-                %this is all untested
+                %3D - this is all untested
                 if max_rows < size(cifti.cdata, 1)
+                    %keep it simple, chunk each plane independently
                     num_passes = ceil(size(cifti.cdata, 1) / max_rows);
                     chunk_rows = ceil(size(cifti.cdata, 1) / num_passes);
-                    %keep it simple, chunk each plane independently
                     for j = 1:size(cifti.cdata, 3)
                         for i = 1:chunk_rows:size(cifti.cdata, 1)
                             fwrite_excepting(fid, cifti.cdata(i:min(size(cifti.cdata, 1), i + chunk_rows - 1), :, j)', 'float32');
                         end
                     end
                 else
+                    %write multiple full planes per call
                     plane_elems = size(cifti.cdata, 1) * size(cifti.cdata, 2);
                     max_planes = max(1, min(size(cifti.cdata, 3), floor(max_elems / plane_elems)));
                     num_passes = ceil(size(cifti.cdata, 3) / max_planes);
@@ -102,7 +104,7 @@ function cifti_write(cifti, filename, varargin)
             otherwise
                 %4D and beyond is not in the cifti-2 standard and is treated as an error in sanity_check_cdata
                 %but, if it ever is supported, warn and write it the memory-intensive way anyway
-                warning('memory-reduced cifti writing for 4 or more dimensions is not implemented');
+                warning('cifti writing for 4 or more dimensions currently peaks at double the memory');
                 fwrite_excepting(fid, permute(cifti.cdata, [2 1 3:length(size(cifti.cdata))]), 'float32');
         end
     end
