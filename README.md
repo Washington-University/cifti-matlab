@@ -61,17 +61,17 @@ ciftisavereset(newcifti, 'firstmap.dscalar.nii');
 clear newcifti;
 ```
 
-The `cifti_file_create_from_template` function can create a cifti struct without writing
+The `cifti_struct_create_from_template` function can create a cifti struct without writing
 it to a file, with the same options as `cifti_write_from_template` to control the other
-diminfo.  The `cifti_write...` or `cifti_file...` functions should handle most cases of
+diminfo.  The `cifti_write...` or `cifti_struct...` functions should handle most cases of
 working with common cifti files, including extracting the data for one cortical surface,
 doing some computation on it, and replacing the surface data with the new values:
 
 ```octave
 mycifti = cifti_read('something.dscalar.nii');
-leftdata = cifti_file_dense_extract_surface_data(mycifti, 'CORTEX_LEFT');
+leftdata = cifti_struct_dense_extract_surface_data(mycifti, 'CORTEX_LEFT');
 newleftdata = 1 - leftdata;
-newcifti = cifti_file_dense_replace_surface_data(mycifti, newleftdata, 'CORTEX_LEFT');
+newcifti = cifti_struct_dense_replace_surface_data(mycifti, newleftdata, 'CORTEX_LEFT');
 ...
 ```
 
@@ -82,5 +82,5 @@ need to make use of the information in a dense diminfo than most other diminfo t
 
 The `cifti_diminfo_*` helpers are lower-level and require more understanding of the
 details of the cifti format, and often require writing more code to use them, so you
-should generally look at the `cifti_write...` and `cifti_file...` functions first.
+should generally look at the `cifti_write...` and `cifti_struct...` functions first.
 
