@@ -52,9 +52,10 @@ the names of the maps for dscalar, and similar for other cifti file types):
 
 ```octave
 mycifti = cifti_read('something.dscalar.nii');
-
 cifti_write_from_template(mycifti, mycifti.cdata(:, 1), 'firstmap.dscalar.nii', 'namelist', {'map #1'});
+
 %ciftisavereset equivalent (keeping 'mycifti' unmodified):
+mycifti = cifti_read('something.dscalar.nii');
 newcifti = mycifti;
 newcifti.cdata = mycifti.cdata(:, 1);
 ciftisavereset(newcifti, 'firstmap.dscalar.nii');
