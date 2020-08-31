@@ -96,7 +96,7 @@ function tree = cifti_write_dense(map, tree, map_uid)
                 end
                 tree = attributes(tree, 'add', model_uid, 'ModelType', 'CIFTI_MODEL_TYPE_VOXELS');
                 [tree, vox_uid] = add(tree, model_uid, 'element', 'VoxelIndicesIJK');
-                tree = add(tree, vox_uid, 'chardata', matrix2str(model{1}.voxlist));
+                tree = add(tree, vox_uid, 'chardata', matrix2str(model{1}.voxlist'));
             otherwise
                 error(['unrecignized brain model type "' model{1}.type '"']);
         end
@@ -216,7 +216,7 @@ function tree = cifti_write_parcels(map, tree, map_uid)
                 error('invalid voxlist content in cifti struct');
             end
             [tree, vox_uid] = add(tree, parcel_uid, 'element', 'VoxelIndicesIJK');
-            tree = add(tree, vox_uid, 'chardata', matrix2str(map.parcels(i).voxlist));
+            tree = add(tree, vox_uid, 'chardata', matrix2str(map.parcels(i).voxlist'));
         end
         for j = 1:length(map.parcels(i).surfs)
             numverts = -1;
