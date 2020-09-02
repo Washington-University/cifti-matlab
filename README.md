@@ -85,3 +85,55 @@ The `cifti_diminfo_*` helpers are lower-level and require more understanding of 
 details of the cifti format, and often require writing more code to use them, so you
 should generally look at the `cifti_write...` and `cifti_struct...` functions first.
 
+# Function reference
+## Main functions
+### read/write and compatibility
+```
+outstruct = cifti_read(filename, ...)
+cifti_write(cifti, filename, ...)
+
+cifti = ciftiopen(filename, ...)     %note: these 3 do not use option pairs,
+ciftisave(cifti, filename, ...)      %  the varargs here is to make passing 'wb_command' optional
+ciftisavereset(cifti, filename, ...)
+```
+### struct create helpers and write convenience functions
+```
+cifti = cifti_struct_create_from_template(ciftitemplate, data, type, ...)
+cifti_write_from_template(ciftitemplate, data, filename, ...)
+
+cifti = cifti_struct_create_sdseries(data, ...)
+cifti_write_sdseries(data, filename, ...)
+```
+### dense struct extract/replace helpers
+```
+[outdata, outroi] = cifti_struct_dense_extract_surface_data(cifti, structure[, dimension])
+cifti = cifti_struct_dense_replace_surface_data(cifti, data, structure[, dimension])
+
+[outdata, outsform1, outroi] = cifti_struct_dense_extract_volume_all_data(cifti[, cropped, dimension])
+cifti = cifti_struct_dense_replace_volume_all_data(cifti, data[, cropped, dimension])
+
+[outdata, outsform1, outroi] = cifti_struct_dense_extract_volume_structure_data(cifti, structure[, cropped, dimension])
+cifti = cifti_struct_dense_replace_volume_structure_data(cifti, data, structure[, cropped, dimension])
+```
+### misc
+```
+[surflist, vollist] = cifti_diminfo_dense_get_structures(diminfo)     %returns the names of structures that exist in this diminfo
+
+outstring = cifti_metadata_get(metadata, key)           %returns empty string for nonexistent key
+metadata = cifti_metadata_remove(metadata, key)         %returns unmodified metadata struct for nonexistent key
+metadata = cifti_metadata_set(metadata, key, value)     %overwrites key if it exists
+```
+## Special usage
+### advanced diminfo helpers
+```
+outinfo = cifti_diminfo_dense_get_surface_info(diminfo, structure)
+outinfo = cifti_diminfo_dense_get_volume_all_info(diminfo[, cropped])
+outinfo = cifti_diminfo_dense_get_volume_structure_info(diminfo, structure[, cropped])
+
+outmap = cifti_diminfo_make_scalars(nummaps[, namelist, metadatalist])
+outmap = cifti_diminfo_make_series(nummaps[, start, step, unit])
+```
+### advanced misc
+```
+indices = cifti_vox2ind(dims, voxlist1)         %helper to act like sub2ind for voxel ijk lists
+```
