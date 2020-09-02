@@ -93,7 +93,7 @@ outstruct = cifti_read(filename, ...)
 cifti_write(cifti, filename, ...)
 
 cifti = ciftiopen(filename, ...)     %note: these 3 do not use option pairs,
-ciftisave(cifti, filename, ...)      %  the varargs here is to make passing 'wb_command' optional
+ciftisave(cifti, filename, ...)      %  the varargin here is to make passing 'wb_command' optional
 ciftisavereset(cifti, filename, ...)
 ```
 ### struct create helpers and write convenience functions
