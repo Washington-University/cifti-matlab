@@ -2,10 +2,10 @@ function cifti_write(cifti, filename, varargin)
     %function cifti_write(cifti, filename, option pairs...)
     %   Write a cifti file.
     %
-    %   Specifying "..., 'keepmetadata', true" disables automatic provenance: if false
-    %   or not specified, the 'Provenance' metadata is moved to 'ParentProvenance',
-    %   'Provenance' is given a generic value, and all other file-level
-    %   metadata is removed.
+    %   Specifying "..., 'keepmetadata', true" leaves the file-level metadata as-is:
+    %   if false or not specified, the 'Provenance' metadata value is moved to
+    %   'ParentProvenance', provenance keys are given generic values, and all other
+    %   file-level metadata is removed.
     %
     %   Specifying "..., 'disableprovenance', true" removes all file-level metadata
     %   before writing.  If the 'keepmetadata' option is true, this option has no
