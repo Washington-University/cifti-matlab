@@ -1,8 +1,8 @@
-MATLAB code for reading and writing CIFTI files, v2, alpha testing
+MATLAB code for reading and writing CIFTI files, v2
 ==================================================================
 
-This code is intended to be fully compatible with the CIFTI-2 format,
-without external dependencies (except that CIFTI-1 files require
+This library is compatible with the CIFTI-2 format, without
+externally installed dependencies (except that CIFTI-1 files require
 wb_command for conversion), returning a structure that exposes the
 information contained in the CIFTI-2 XML with minimal translation, as well
 as the data matrix with no added padding.  The cifti_read function is
@@ -16,11 +16,12 @@ single line of intuitive code.
 The previous code that was derived from FieldTrip is in the "ft_cifti"
 folder.
 
-Currently, the cifti structure returned by this library uses 0-based
+The cifti structure returned by this library uses 0-based
 indices for vertex and voxel indices, 1-based for cifti indices, and
-the helper functions return 1-based indices for everything.  Be aware
-that this library is in alpha testing, and conventions such as this may
-change.
+the helper functions return 1-based indices for everything.  This library
+is in beta testing, and while function names and other conventions are
+expected to be near-final, it is possible they could be changed before
+a full release.
 
 # Usage
 All exposed functions have usage information available through the `help` command:
