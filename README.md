@@ -44,7 +44,7 @@ cifti_write(mycifti, 'sqrt.dscalar.nii');
 ```
 
 The `ciftiopen`, `ciftisave`, and `ciftisavereset` functions provide backward
-compatibility with a previous cifti library (option B of
+compatibility with a previous cifti library (option II of
 [HCP FAQ 2](https://wiki.humanconnectome.org/display/PublicData/HCP+Users+FAQ#HCPUsersFAQ-2.HowdoyougetCIFTIfilesintoMATLAB?)),
 and you can also use this `ciftisavereset` function even if you use `cifti_read`.
 An alternative way to do the equivalent of `ciftisavereset` is to use the
