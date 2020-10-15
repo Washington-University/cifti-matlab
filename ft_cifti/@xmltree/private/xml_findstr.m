@@ -27,16 +27,28 @@ function k = xml_findstr(s,p,i,n)
 
 %error(sprintf('Missing MEX-file: %s', mfilename));
 
+%TSC: don't warn any more, in cifti it doesn't take much time
+%{
 persistent runonce
 if isempty(runonce)
     warning(sprintf(['xml_findstr is not compiled for your platform.\n'...
     'This will result in a slowdown of the XML parsing.']));
     runonce = 1;
 end
-
-% k = regexp(s(i:end),p,'once') + i - 1;
+%}
 if nargin < 3, i = 1;   end
 if nargin < 4, n = Inf; end
+%{
+%warning: assumes all uses ask for only one instance
+p = strrep(strrep(strrep(p, '[', '\['), ']', '\]'), '?', '\?');%escape only the things we search the xml for
+k = regexp(s(i:end),p,'once') + i - 1;
+%}
+%{
 j = strfind(s,p);
 k = j(j>=i);
+if ~isempty(k), k = k(1:min(n,length(k))); end
+%}
+
+%TSC: this is the fastest in octave 4.2.2
+k = strfind(s(i:end),p) + i - 1;
 if ~isempty(k), k = k(1:min(n,length(k))); end
