@@ -32,7 +32,7 @@ case "$target" in
         echo
     ;;
     (*)
-        echo "internal error" 2>&1
+        echo "internal error" 1>&2
         exit 2
     ;;
 esac

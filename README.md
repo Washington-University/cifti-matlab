@@ -18,10 +18,7 @@ folder.
 
 The cifti structure returned by this library uses 0-based
 indices for vertex and voxel indices, 1-based for cifti indices, and
-the helper functions return 1-based indices for everything.  This library
-is in beta testing, and while function names and other conventions are
-expected to be near-final, it is possible they could be changed before
-a full release.
+the helper functions return 1-based indices for everything.
 
 # Usage
 All exposed functions have usage information available through the `help` command:
