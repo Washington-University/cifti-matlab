@@ -2,7 +2,7 @@
 
 INCLUDED SOFTWARE WITH OTHER LICENSES:
 
-All contents of @xmltree/ are copyright 2002-2015 Guillaume Flandin (Guillaume@artefact.tk), and released under LGPL v3+, see @xmltree/LICENSE
+All contents of @xmltree/ are copyright 2002-2015 Guillaume Flandin, and released under LGPL v3+, see @xmltree/LICENSE
 
 All contents of ft_cifti/ are copyright various authors, and released under GPL v3+, see ft_cifti/LICENSE.* and ft_cifti/ft_read_cifti.m
 

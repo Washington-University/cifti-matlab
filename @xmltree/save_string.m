@@ -63,7 +63,7 @@ function xmlstr = print_subtree(tree, uid, order)
                 contents = [contents indentstr '<?' tree.tree{child_uid}.target ' ' tree.tree{child_uid}.value '?>']; %#ok<AGROW>
             case 'comment'
                 allchildrentext = false;
-                contents = [contents indentstr '<!-- %s -->', tree.tree{child_uid}.value]; %#ok<AGROW>
+                contents = [contents indentstr '<!-- '  tree.tree{child_uid}.value ' -->']; %#ok<AGROW>
             otherwise
                 warning('Type %s unknown: not saved', tree.tree{child_uid}.type);
         end
