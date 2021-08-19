@@ -291,7 +291,12 @@ function tree = cifti_write_labels(map, tree, map_uid)
         tree = add(tree, name_uid, 'chardata', map.maps(i).name);
         tree = cifti_write_metadata(map.maps(i).metadata, tree, nm_uid);
         [tree, table_uid] = add(tree, nm_uid, 'element', 'LabelTable');
-        for j = 1:length(map.maps(i).table)
+        if length(unique([map.maps(i).table.key])) ~= length(map.maps(i).table)
+            error(['label table contains duplicate key value in map ' num2str(i)]);
+        end
+        [~, torder] = sort([map.maps(i).table.key]); %write the table in sorted order
+        for jind = 1:length(map.maps(i).table)
+            j = torder(jind);
             [tree, label_uid] = add(tree, table_uid, 'element', 'Label');
             tree = attributes(tree, 'add', label_uid, 'Key', num2str(map.maps(i).table(j).key));
             tree = attributes(tree, 'add', label_uid, 'Red', num2str(map.maps(i).table(j).rgba(1), 6));
