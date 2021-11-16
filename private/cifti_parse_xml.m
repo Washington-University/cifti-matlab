@@ -5,7 +5,7 @@ function outstruct = cifti_parse_xml(bytes, filename)
     if any(nulls)
         bytes = bytes(1:(find(nulls, 1) - 1));
     end
-    tree = xmltree(bytes);
+    tree = xmltreemod(bytes);
     setfilename(tree, filename);%probably helps with error messages for malformed XML?
     attrs = myattrs(tree);
     for attr = attrs
