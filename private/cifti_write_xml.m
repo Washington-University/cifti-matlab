@@ -31,7 +31,6 @@ function tree = cifti_write_metadata(metadata, tree, matrix_uid)
 end
 
 function tree = cifti_write_maps(cifti, tree, matrix_uid)
-    %consider checking maps for equality and using AppliesToMatrixDimension to sometimes reduce xml size...
     mapused = false(length(cifti.diminfo), 1);
     for i = 1:length(cifti.diminfo)
         if mapused(i)
