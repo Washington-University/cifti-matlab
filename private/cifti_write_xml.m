@@ -47,7 +47,7 @@ function tree = cifti_write_maps(cifti, tree, matrix_uid)
                 if j < 3
                     appliesto = [appliesto ',' sprintf('%d', 2 - j)]; %#ok<AGROW>
                 else
-                    appliesto = [appliesto ',' sprintf('%d', j)]; %#ok<AGROW>
+                    appliesto = [appliesto ',' sprintf('%d', j - 1)]; %#ok<AGROW>
                 end
                 mapused(j) = true;
             end
