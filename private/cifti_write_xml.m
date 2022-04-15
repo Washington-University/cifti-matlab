@@ -32,13 +32,29 @@ end
 
 function tree = cifti_write_maps(cifti, tree, matrix_uid)
     %consider checking maps for equality and using AppliesToMatrixDimension to sometimes reduce xml size...
+    mapused = false(length(cifti.diminfo), 1);
     for i = 1:length(cifti.diminfo)
-        appliesto = i; %NOTE: first and second dims are swapped compared to on disk, because of ciftiopen convention
-        if (i < 3)
-            appliesto = 3 - i; %NOTE: no, this isn't complex
+        if mapused(i)
+            continue;
+        end
+        if i < 3 %NOTE: first and second dims are swapped compared to on disk, because of ciftiopen convention
+            appliesto = sprintf('%d', 2 - i); %NOTE: no, this isn't complex, and on disk needs 0-based numbers
+        else
+            appliesto = sprintf('%d', i - 1);
+        end
+        for j = (i + 1):length(cifti.diminfo)
+            %consider simplifying maps, like removing the volume space if voxels aren't used and sorting parcel member lists, to make this equality "less picky"
+            if ~mapused(j) && isequaln(cifti.diminfo{i}, cifti.diminfo{j})
+                if j < 3
+                    appliesto = [appliesto ',' sprintf('%d', 2 - j)]; %#ok<AGROW>
+                else
+                    appliesto = [appliesto ',' sprintf('%d', j)]; %#ok<AGROW>
+                end
+                mapused(j) = true;
+            end
         end
         [tree, map_uid] = add(tree, matrix_uid, 'element', 'MatrixIndicesMap');
-        tree = attributes(tree, 'add', map_uid, 'AppliesToMatrixDimension', num2str(appliesto - 1)); %NOTE: 1-based matlab indexing
+        tree = attributes(tree, 'add', map_uid, 'AppliesToMatrixDimension', appliesto); %NOTE: 1-based matlab indexing
         switch cifti.diminfo{i}.type
             case 'dense'
                 tree = cifti_write_dense(cifti.diminfo{i}, tree, map_uid);
