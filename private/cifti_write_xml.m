@@ -36,6 +36,7 @@ function tree = cifti_write_maps(cifti, tree, matrix_uid)
         if mapused(i)
             continue;
         end
+        mapused(i) = true; %for consistency
         if i < 3 %NOTE: first and second dims are swapped compared to on disk, because of ciftiopen convention
             appliesto = sprintf('%d', 2 - i); %NOTE: no, this isn't complex, and on disk needs 0-based numbers
         else
