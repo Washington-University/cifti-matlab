@@ -13,7 +13,7 @@ function outbytes = cifti_write_xml(cifti, keep_metadata)
     [tree, matrix_uid] = add(tree, root_uid, 'element', 'Matrix');
     tree = cifti_write_metadata(cifti.metadata, tree, matrix_uid);
     tree = cifti_write_maps(cifti, tree, matrix_uid);
-    outbytes = save_string(tree); %modified version of save() that doesn't add formatting whitespace in bad places
+    outbytes = save(tree, ''); %newer xmltree uses empty filename to allow options with string output, uses less intrusive formatting
 end
 
 function tree = cifti_write_metadata(metadata, tree, matrix_uid)
