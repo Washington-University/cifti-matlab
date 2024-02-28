@@ -17,7 +17,7 @@ function cifti_write(cifti, filename, varargin)
     %   >> cifti.cdata = outdata;
     %   >> cifti.diminfo{2} = cifti_diminfo_make_scalars(size(outdata, 2));
     %   >> cifti_write(cifti, 'ciftiout.dscalar.nii');
-    libversion = '2.1.0';
+    libversion = '2.2.1';
     options = myargparse(varargin, {'stacklevel', 'disableprovenance', 'keepmetadata'}); %stacklevel is an implementation detail, don't add to help
     if isempty(options.stacklevel) %stacklevel is so that so it doesn't get "ciftisave" all the time
         options.stacklevel = 2;
@@ -27,11 +27,13 @@ function cifti_write(cifti, filename, varargin)
     if options.keepmetadata && options.disableprovenance
         warning('both "keepmetadata" and "disableprovenance" are true, ignoring "disableprovenance"');
     end
+    %dims_m = size(cifti.cdata); %NO: matlab can't represent [x, y, 1] matrices, always changes them to [x, y] on the fly
+    dims_m = [];
     for i = 1:length(cifti.diminfo)
         cifti.diminfo{i}.length = cifti_diminfo_length(cifti.diminfo{i}); %set diminfo .length from diminfo contents so it is synchronized
+        dims_m(i) = cifti.diminfo{i}.length; %#ok<AGROW>
     end
     sanity_check_cdata(cifti);
-    dims_m = size(cifti.cdata);
     dims_c = dims_m([2 1 3:length(dims_m)]); %ciftiopen convention, first matlab index is down
     if ~options.keepmetadata
         if ~options.disableprovenance
@@ -204,3 +206,4 @@ function output = argtobool(input, argname)
             error(['unrecognized value for option "' argname '", please use 0/1, true/false, yes/no']);
     end
 end
+
