@@ -31,8 +31,15 @@ function tree = cifti_write_metadata(metadata, tree, matrix_uid)
 end
 
 function tree = cifti_write_maps(cifti, tree, matrix_uid)
+    haveLabels = false;
     mapused = false(length(cifti.diminfo), 1);
     for i = 1:length(cifti.diminfo)
+        if strcmp(cifti.diminfo{i}.type, 'labels')
+            if haveLabels
+                error('cifti files are not allowed to have more than one labels dimension, change one of them to scalar');
+            end
+            haveLabels = true;
+        end
         if mapused(i)
             continue;
         end

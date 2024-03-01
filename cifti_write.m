@@ -70,44 +70,28 @@ function cifti_write(cifti, filename, varargin)
     %FIXME: if we allow setting nifti scale/intercept, that needs to be added to this code
     max_elems = 128 * 1024 * 1024 / 4; %assuming float32, use only 128MiB extra memory when writing (or the size of a row, if that manages to be larger)
     if numel(cifti.cdata) <= max_elems
-        %file is small, use simple 'permute' writing code
+        %file is small, use simple whole-array writing code
         fwrite_excepting(fid, permute(cifti.cdata, [2 1 3:length(size(cifti.cdata))]), 'float32');
     else
-        max_rows = max(1, min(size(cifti.cdata, 1), floor(max_elems / size(cifti.cdata, 2))));
-        switch length(size(cifti.cdata))
-            case 2
-                %even out the passes to use about the same memory
-                num_passes = ceil(size(cifti.cdata, 1) / max_rows);
-                chunk_rows = ceil(size(cifti.cdata, 1) / num_passes);
-                for i = 1:chunk_rows:size(cifti.cdata, 1)
-                    fwrite_excepting(fid, cifti.cdata(i:min(size(cifti.cdata, 1), i + chunk_rows - 1), :)', 'float32');
+        max_rows = max(1, floor(max_elems / dims_c(1)));
+        if max_rows < dims_c(2) %less than a plane at a time, don't write cross-plane
+            num_passes = ceil(dims_c(2) / max_rows); %even out the passes
+            chunk_rows = ceil(prod(dims_c(2:end)) / num_passes);
+            total_planes = prod(dims_c(3:end));
+            for plane = 1:total_planes
+                for chunkstart = 1:chunk_rows:dims_c(2)
+                    %since it is part of one plane, technically matlab will return a 2D matrix, and we could just use transpose...
+                    fwrite_excepting(fid, permute(cifti.cdata(chunkstart:min(dims_c(2), chunkstart + chunk_rows - 1), :, plane), [2 1 3]), 'float32');
                 end
-            case 3
-                %3D - this is all untested
-                if max_rows < size(cifti.cdata, 1)
-                    %keep it simple, chunk each plane independently
-                    num_passes = ceil(size(cifti.cdata, 1) / max_rows);
-                    chunk_rows = ceil(size(cifti.cdata, 1) / num_passes);
-                    for j = 1:size(cifti.cdata, 3)
-                        for i = 1:chunk_rows:size(cifti.cdata, 1)
-                            fwrite_excepting(fid, cifti.cdata(i:min(size(cifti.cdata, 1), i + chunk_rows - 1), :, j)', 'float32');
-                        end
-                    end
-                else
-                    %write multiple full planes per call
-                    plane_elems = size(cifti.cdata, 1) * size(cifti.cdata, 2);
-                    max_planes = max(1, min(size(cifti.cdata, 3), floor(max_elems / plane_elems)));
-                    num_passes = ceil(size(cifti.cdata, 3) / max_planes);
-                    chunk_planes = ceil(size(cifti.cdata, 3) / num_passes);
-                    for j = 1:chunk_planes:size(cifti.cdata, 3)
-                        fwrite_excepting(fid, permute(cifti.cdata(:, :, j:min(size(cifti.cdata, 3), j + chunk_planes - 1)), [2 1 3]), 'float32');
-                    end
-                end
-            otherwise
-                %4D and beyond is not in the cifti-2 standard and is treated as an error in sanity_check_cdata
-                %but, if it ever is supported, warn and write it the memory-intensive way anyway
-                warning('cifti writing for 4 or more dimensions currently peaks at double the memory');
-                fwrite_excepting(fid, permute(cifti.cdata, [2 1 3:length(size(cifti.cdata))]), 'float32');
+            end
+        else
+            max_planes = max(1, floor(max_rows / dims_c(2))); %just in case the division does something dumb
+            total_planes = prod(dims_c(3:end)); %flatten all dimensions 3+
+            num_passes = ceil(total_planes / max_planes);
+            chunk_planes = ceil(total_planes / num_passes);
+            for chunkstart = 1:chunk_planes:total_planes
+                fwrite_excepting(fid, permute(cifti.cdata(:, :, chunkstart:min(total_planes, chunkstart + chunk_planes - 1)), [2 1 3]), 'float32');
+            end
         end
     end
 end
