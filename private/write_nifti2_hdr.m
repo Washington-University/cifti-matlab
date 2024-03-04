@@ -21,7 +21,7 @@ function [fid, hdr, cleanupObj] = write_nifti2_hdr(hdr, filename)
     end
     hdr.vox_offset = vox_offset;
     fwrite_excepting(fid, int32(540), 'int32', filename); %this must never be another number, so ignore what hdr says
-    fwrite_excepting(fid, ['n+2' 0 13 10 26 10], 'int8', filename); %ditto
+    fwrite_excepting(fid, ['n+2' char([0 13 10 26 10])], 'int8', filename); %ditto
     fwrite_excepting(fid, hdr.datatype(1), 'int16', filename); %force scalar by taking first element
     fwrite_excepting(fid, hdr.bitpix(1), 'int16', filename);
     fwrite_excepting(fid, hdr.dim(1:8), 'int64', filename); %force vector sizes by indexing

@@ -109,7 +109,7 @@ function [hdr, fid, cleanupObj] = read_nifti2_hdr(filename)
         error('inconsistent endianness in the header');
     end
 
-    if ~strcmp(hdr.magic, ['n+2' 0 13 10 26 10])
+    if ~strcmp(hdr.magic, ['n+2' char([0 13 10 26 10])])
         % see https://www.nitrc.org/forum/forum.php?thread_id=2148&forum_id=1941
         % support only single-file
         error('wrong magic string in the header');
