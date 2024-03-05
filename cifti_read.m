@@ -94,19 +94,19 @@ function outstruct = cifti_read(filename, varargin)
         error(['failed to seek to start of data in file ' filename]);
     end
     %always convert to float32, maybe add a feature later
+    outstruct.cdata = myzeros(dims_m);
     %use 'cdata' to be compatible with old ciftiopen
     max_elems = 128 * 1024 * 1024 / 4; %when reading as float32, use only 128MiB extra memory when reading (or the size of a row, if that manages to be larger)
     if prod(dims_c) <= max_elems
         %file is small, use the simple code to read it all in one call
         %permute to match ciftiopen: cifti "rows" matching matlab rows
-        %hack: 3:2 produces empty array, 3:3 produces [3]
-        outstruct.cdata = permute(do_nifti_scaling(fread_excepting(fid, hdr.dim(6:(hdr.dim(1) + 1)), [intype '=>float32'], filename), hdr), [2 1 3:(hdr.dim(1) - 4)]);
+        %note: 3:2 produces empty array, 3:3 produces [3]
+        outstruct.cdata(:) = permute(do_nifti_scaling(fread_excepting(fid, hdr.dim(6:(hdr.dim(1) + 1)), [intype '=>float32'], filename), hdr), [2 1 3:(hdr.dim(1) - 4)]);
     else
         %matlab indexing modes can't handle swapping first two dims while doing "some full planes plus a partial plane" per fread()
         %reshape at the end would hit double the memory usage, and we want to avoid that
         %so to avoid slow row-at-a-time loops, two cases: less than a plane, and multiple full planes
         %with implicit third index and implicit flattening on final specified dimension, we can do these generically in a way that should work even for 4D+ (if it is ever supported)
-        outstruct.cdata = myzeros(dims_m);
         max_rows = max(1, floor(max_elems / dims_c(1)));
         if max_rows < dims_c(2) %less than a plane at a time, don't read cross-plane
             num_passes = ceil(dims_c(2) / max_rows); %even out the passes
