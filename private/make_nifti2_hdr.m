@@ -35,7 +35,7 @@ function hdr = make_nifti2_hdr()
     hdr.xyzt_units = int32(10); %default to mm + sec
     hdr.intent_code = int32(0);
     hdr.intent_name = char(zeros(1, 16, 'int8'));
-    hdr.dim_info = char(0);
+    hdr.dim_info = uint8(0);
     hdr.unused_str = char(zeros(1, 15, 'int8'));
     hdr.extensions = struct('ecode', {}, 'edata', {}); %esize is automatically set from the length of edata
 end
