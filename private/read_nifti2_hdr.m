@@ -146,7 +146,7 @@ function [hdr, fid, cleanupObj] = read_nifti2_hdr(filename)
     hdr.intent_code     = fread_excepting(fid, [1 1 ], 'int32=>int32'   ); % 504     See file formats
     hdr.intent_name     = fread_excepting(fid, [1 16], 'uint8=>char'     ); % 508     See file formats
     hdr.dim_info        = fread_excepting(fid, [1 1 ], 'uint8=>uint8'     ); % 524     0
-    hdr.unused_str      = fread_excepting(fid, [1 15], 'uint8=>char'     ); % 525     All zeros
+    hdr.unused_str      = fread_excepting(fid, [1 15], 'uint8'     ); % 525     All zeros
     % disp(ftell(fid));                                          % 540     End of the header
 
     if feof(fid)
@@ -170,7 +170,7 @@ function [hdr, fid, cleanupObj] = read_nifti2_hdr(filename)
                     break;
                 end
                 extension.ecode = fread_excepting(fid, [1 1], 'int32=>int32');
-                extension.edata = fread_excepting(fid, [1 esize - 8], 'uint8=>char');
+                extension.edata = fread_excepting(fid, [1 esize - 8], 'uint8');
                 hdr.extensions = [hdr.extensions extension];
             end
         end

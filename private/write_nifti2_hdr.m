@@ -11,11 +11,11 @@ function [fid, hdr, cleanupObj] = write_nifti2_hdr(hdr, filename)
     vox_offset = 544; %first possible value of vox_offset
     for i = 1:length(hdr.extensions)
         %esize and ecode are 32bit each, for a total of 8 bytes extra
-        initsize = length(hdr.extensions(i).edata) + 8;
-        overflow = mod(initsize, 16);
+        datasize = length(hdr.extensions(i).edata);
+        overflow = mod(datasize + 8, 16);
         if overflow ~= 0
             padding = 16 - overflow;
-            hdr.extensions(i).edata = string_force_size(hdr.extensions(i).edata, initsize + padding);
+            hdr.extensions(i).edata = bytes_force_size(hdr.extensions(i).edata, datasize + padding);
         end
         vox_offset = vox_offset + length(hdr.extensions(i).edata) + 8;
     end
@@ -38,8 +38,8 @@ function [fid, hdr, cleanupObj] = write_nifti2_hdr(hdr, filename)
     fwrite_excepting(fid, hdr.toffset(1), 'float64', filename);
     fwrite_excepting(fid, hdr.slice_start(1), 'int64', filename);
     fwrite_excepting(fid, hdr.slice_end(1), 'int64', filename);
-    fwrite_excepting(fid, string_force_size(hdr.descrip(:)', 80), 'uint8', filename); %force strings to be vectors of the right length
-    fwrite_excepting(fid, string_force_size(hdr.aux_file(:)', 24), 'uint8', filename);
+    fwrite_excepting(fid, bytes_force_size(unicode2native(hdr.descrip(:)', 'UTF-8'), 80), 'uint8', filename); %force strings to be vectors of the right length
+    fwrite_excepting(fid, bytes_force_size(unicode2native(hdr.aux_file(:)', 'UTF-8'), 24), 'uint8', filename);
     fwrite_excepting(fid, hdr.qform_code(1), 'int32', filename);
     fwrite_excepting(fid, hdr.sform_code(1), 'int32', filename);
     fwrite_excepting(fid, hdr.quatern_b(1), 'float64', filename);
@@ -54,9 +54,9 @@ function [fid, hdr, cleanupObj] = write_nifti2_hdr(hdr, filename)
     fwrite_excepting(fid, hdr.slice_code(1), 'int32', filename);
     fwrite_excepting(fid, hdr.xyzt_units(1), 'int32', filename);
     fwrite_excepting(fid, hdr.intent_code(1), 'int32', filename);
-    fwrite_excepting(fid, string_force_size(hdr.intent_name(:)', 16), 'uint8', filename);
+    fwrite_excepting(fid, bytes_force_size(unicode2native(hdr.intent_name(:)', 'UTF-8'), 16), 'uint8', filename);
     fwrite_excepting(fid, hdr.dim_info(1), 'uint8', filename);
-    fwrite_excepting(fid, string_force_size(hdr.unused_str(:)', 15), 'uint8', filename);
+    fwrite_excepting(fid, bytes_force_size(hdr.unused_str(:)', 15), 'uint8', filename);
     if ftell(fid) ~= 540 %sanity check how many bytes we wrote
         error('internal error in write_nifti2_hdr()');
     end
@@ -75,14 +75,15 @@ function [fid, hdr, cleanupObj] = write_nifti2_hdr(hdr, filename)
     end
 end
 
-function outstring = string_force_size(instring, newsize)
-    if length(instring) > newsize
-        outstring = instring(1:newsize);
+function outbytes = bytes_force_size(inbytes, newsize)
+    if length(inbytes) > newsize
+        outbytes = inbytes(1:newsize);
     else
-        if length(instring) < newsize
-            outstring = [instring(:)' char(zeros(1, newsize - length(instring), 'uint8'))];
+        if length(inbytes) < newsize
+            outbytes = inbytes;
+            outbytes(end+1:newsize) = 0;
         else
-            outstring = instring;
+            outbytes = inbytes;
         end
     end
 end

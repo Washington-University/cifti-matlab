@@ -16,16 +16,19 @@ function outstruct = cifti_read(filename, varargin)
     if isempty(hdr.extensions)
         error(['no cifti extension found in file ' filename]);
     end
-    ciftiextindex = find(hdr.extensions.ecode == 32);
-    if length(ciftiextindex) ~= 1
+    ciftiextindex = find([hdr.extensions.ecode] == 32);
+    if length(ciftiextindex) > 1
         error(['multiple cifti extensions found in file ' filename]);
+    end
+    if isempty(ciftiextindex)
+        error(['no cifti extension found in file ' filename]);
     end
     %sanity check dims
     if hdr.dim(1) < 6 || any(hdr.dim(2:5) ~= 1)
         error(['wrong nifti dimensions for cifti file ' filename]);
     end
     try
-        outstruct = cifti_parse_xml(hdr.extensions(ciftiextindex).edata, filename);
+        outstruct = cifti_parse_xml(native2unicode(hdr.extensions(ciftiextindex).edata, 'UTF-8'), filename);
     catch excinfo
         if strcmp(excinfo.identifier, 'cifti:version')
             if mod(length(varargin), 2) == 1 && strcmp(varargin{end}, 'recursed') %guard against infinite recursion
@@ -49,6 +52,12 @@ function outstruct = cifti_read(filename, varargin)
     end
     if any(dims_m ~= dims_xml)
         error(['xml dimensions disagree with nifti dimensions in cifti file ' filename]);
+    end
+    outstruct.otherexts = struct([]);
+    for i = 1:length(hdr.extensions)
+        if hdr.extensions(i).ecode ~= 32
+            outstruct.otherexts = [outstruct.otherexts hdr.extensions(i)];
+        end
     end
     
     %find stored datatype

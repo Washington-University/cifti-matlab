@@ -11,6 +11,9 @@ function cifti_write(cifti, filename, varargin)
     %   before writing.  If the 'keepmetadata' option is true, this option has no
     %   effect, but a warning is issued if both options are true.
     %
+    %   Specifying "..., 'otherexts', <struct array>" allows writing additional
+    %   nifti extensions to the output file
+    %
     %   Example usage:
     %
     %   >> cifti = cifti_read('91282_Greyordinates.dscalar.nii');
@@ -18,7 +21,7 @@ function cifti_write(cifti, filename, varargin)
     %   >> cifti.diminfo{2} = cifti_diminfo_make_scalars(size(outdata, 2));
     %   >> cifti_write(cifti, 'ciftiout.dscalar.nii');
     libversion = '2.2.2';
-    options = myargparse(varargin, {'stacklevel', 'disableprovenance', 'keepmetadata'}); %stacklevel is an implementation detail, don't add to help
+    options = myargparse(varargin, {'stacklevel', 'disableprovenance', 'keepmetadata', 'otherexts'}); %stacklevel is an implementation detail, don't add to help
     if isempty(options.stacklevel) %stacklevel is so that so it doesn't get "ciftisave" all the time
         options.stacklevel = 2;
     end
@@ -52,10 +55,22 @@ function cifti_write(cifti, filename, varargin)
             cifti.metadata = struct('key', {}, 'value', {});
         end
     end
-    xmlbytes = cifti_write_xml(cifti, true);
+    xmlstring = cifti_write_xml(cifti, true);
     header = make_nifti2_hdr();
-    extension = struct('ecode', 32, 'edata', xmlbytes); %header writing function will pad the extensions with nulls
-    header.extensions = extension; %don't need concatenation for only one nifti extension
+    extension = struct('ecode', 32, 'edata', unicode2native(xmlstring, 'UTF-8')); %header writing function will pad the extensions with nulls
+    if isempty(options.otherexts)
+        header.extensions = extension;
+    else
+        for i = 1:length(options.otherexts)
+            if ~isfield(options.otherexts(i), 'ecode')
+                error('otherexts is missing the "ecode" field');
+            end
+            if options.otherexts(i).ecode == 32
+                error('otherexts contains an extension that uses the CIFTI ecode (32), this is not allowed');
+            end
+        end
+        header.extensions = [extension options.otherexts];
+    end
     header.datatype = 16;
     header.bitpix = 32;
     header.dim(6:(6 + length(dims_c) - 1)) = dims_c;
