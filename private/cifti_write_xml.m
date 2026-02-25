@@ -1,7 +1,7 @@
 function outbytes = cifti_write_xml(cifti, keep_metadata)
     if ~(nargin > 1 && keep_metadata)
         prov = cifti_metadata_get(cifti.metadata, 'Provenance');
-        cifti.metadata = struct('key', 'Provenance', 'value', 'cifti_write_xml.m v1.0');
+        cifti.metadata = struct('key', 'Provenance', 'value', 'cifti_write_xml.m v2.2.3');
         if ~isempty(prov)
             cifti.metadata = cifti_metadata_set(cifti.metadata, 'ParentProvenance', prov);
         end
