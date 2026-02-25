@@ -151,6 +151,12 @@ function outstr = friendly_to_cifti_structure(instr)
         case 'DIENCEPHALON_VENTRAL_RIGHT'; outstr = 'CIFTI_STRUCTURE_DIENCEPHALON_VENTRAL_RIGHT';
         case 'HIPPOCAMPUS_LEFT'; outstr = 'CIFTI_STRUCTURE_HIPPOCAMPUS_LEFT';
         case 'HIPPOCAMPUS_RIGHT'; outstr = 'CIFTI_STRUCTURE_HIPPOCAMPUS_RIGHT';
+        case 'HIPPOCAMPUS_DENTATE_LEFT'
+            disp('NOTE: writing nonstandard left hippocampus dentate structure to cifti-2');
+            outstr = 'CIFTI_STRUCTURE_HIPPOCAMPUS_DENTATE_LEFT';
+        case 'HIPPOCAMPUS_DENTATE_RIGHT'
+            disp('NOTE: writing nonstandard right hippocampus dentate structure to cifti-2');
+            outstr = 'CIFTI_STRUCTURE_HIPPOCAMPUS_DENTATE_RIGHT';
         case 'OTHER'; outstr = 'CIFTI_STRUCTURE_OTHER';
         case 'OTHER_GREY_MATTER'; outstr = 'CIFTI_STRUCTURE_OTHER_GREY_MATTER';
         case 'OTHER_WHITE_MATTER'; outstr = 'CIFTI_STRUCTURE_OTHER_WHITE_MATTER';
@@ -161,7 +167,7 @@ function outstr = friendly_to_cifti_structure(instr)
         case 'THALAMUS_LEFT'; outstr = 'CIFTI_STRUCTURE_THALAMUS_LEFT';
         case 'THALAMUS_RIGHT'; outstr = 'CIFTI_STRUCTURE_THALAMUS_RIGHT';
         otherwise
-            error(['invalid structure name "' instr '"in cifti struct']);
+            error(['invalid structure name "' instr '" in cifti struct']);
     end
 end
 
