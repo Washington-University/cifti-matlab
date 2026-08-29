@@ -81,8 +81,18 @@ end
 
 function tree = cifti_write_dense(map, tree, map_uid)
     tree = attributes(tree, 'add', map_uid, 'IndicesMapToDataType', 'CIFTI_INDEX_TYPE_BRAIN_MODELS');
-    %TODO: check if map.vol is actually needed by mapping?
-    tree = cifti_write_vol(map.vol, tree, map_uid); %also used by parcels
+    writevolelem = false;
+    for model = map.models(:)'
+        if strcmp(model{1}.type, 'vox')
+            writevolelem = true;
+        end
+    end
+    if writevolelem
+        tree = cifti_write_vol(map.vol, tree, map_uid); %also used by parcels
+    end
+    allvox = [];
+    surfstructs = {};
+    volstructs = {};
     for model = map.models(:)'
         if model{1}.start + model{1}.count - 1 > map.length
             error('length attribute is less than dense map content'); %TODO: check for gaps and overlap?
@@ -99,6 +109,7 @@ function tree = cifti_write_dense(map, tree, map_uid)
                 if any(model{1}.vertlist < 0 | model{1}.vertlist >= model{1}.numvert | mod(model{1}.vertlist, 1) ~= 0)
                     error('vertex list contains invalid vertex numbers');
                 end
+                surfstructs = [surfstructs {model{1}.struct}]; %#ok<AGROW>
                 tree = attributes(tree, 'add', model_uid, 'ModelType', 'CIFTI_MODEL_TYPE_SURFACE');
                 tree = attributes(tree, 'add', model_uid, 'SurfaceNumberOfVertices', num2str(model{1}.numvert));
                 [tree, vert_uid] = add(tree, model_uid, 'element', 'VertexIndices');
@@ -117,12 +128,23 @@ function tree = cifti_write_dense(map, tree, map_uid)
                 if any(model{1}.voxlist < 0 | model{1}.voxlist >= repmat(map.vol.dims', 1, model{1}.count))
                     error('invalid voxlist content in cifti struct');
                 end
+                allvox = [allvox model{1}.voxlist]; %#ok<AGROW>
+                volstructs = [volstructs {model{1}.struct}]; %#ok<AGROW>
                 tree = attributes(tree, 'add', model_uid, 'ModelType', 'CIFTI_MODEL_TYPE_VOXELS');
                 [tree, vox_uid] = add(tree, model_uid, 'element', 'VoxelIndicesIJK');
                 tree = add(tree, vox_uid, 'chardata', voxlist2str(model{1}.voxlist'));
             otherwise
-                error(['unrecignized brain model type "' model{1}.type '"']);
+                error(['unrecognized brain model type "' model{1}.type '"']);
         end
+    end
+    if length(unique(volstructs)) ~= length(volstructs)
+        error('brain models specify a volume structure more than once');
+    end
+    if length(unique(surfstructs)) ~= length(surfstructs)
+        error('brain models specify a surface structure more than once');
+    end
+    if size(unique(allvox', 'rows'), 1) ~= size(allvox, 2)
+        myerror('brain models have repeated or overlapping voxels', filename);
     end
 end
 

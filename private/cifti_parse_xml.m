@@ -233,16 +233,22 @@ function map = cifti_parse_dense(tree, map_uid, filename)
     end
     map.length = map.models{end}.start + map.models{end}.count - 1; %1-based indexing fencepost
     allvox = [];
-    allstructs = {};
+    surfstructs = {};
+    volstructs = {};
     for model = map.models(:)'
         switch model{1}.type
             case 'vox'
                 allvox = [allvox model{1}.voxlist]; %#ok<AGROW>
+                volstructs = [volstructs {model{1}.struct}]; %#ok<AGROW>
+            case 'surf'
+                surfstructs = [surfstructs {model{1}.struct}]; %#ok<AGROW>
         end
-        allstructs = [allstructs {model{1}.struct}]; %#ok<AGROW>
     end
-    if length(unique(allstructs)) ~= length(allstructs)
-        myerror('brain models specify a structure more than once', filename);
+    if length(unique(volstructs)) ~= length(volstructs)
+        myerror('brain models specify a volume structure more than once', filename);
+    end
+    if length(unique(surfstructs)) ~= length(surfstructs)
+        myerror('brain models specify a surface structure more than once', filename);
     end
     if size(unique(allvox', 'rows'), 1) ~= size(allvox, 2)
         myerror('brain models have repeated or overlapping voxels', filename);
